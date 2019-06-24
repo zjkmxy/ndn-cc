@@ -1,0 +1,24 @@
+syntax = "proto2";
+package ndn_message;
+
+message Name {
+  repeated bytes component = 8;
+}
+
+// Protobuf has no "outer" message type, so we need to put the TLV XXX
+// message inside an outer "typeless" XXXMessage.
+message FaceEventNotificationMessage {
+  message FaceEventNotification {
+    required uint32 face_event_kind = 193;
+    required uint64 face_id = 105;
+    required bytes uri = 114;
+    required bytes local_uri = 129;
+    required uint32 face_scope = 132;
+    required uint32 face_persistency = 133;
+    required uint32 link_type = 134;
+    required uint64 flags = 108;
+  }
+
+  // A RepoCommandResponseMessage has one RepoCommandResponse.
+  required FaceEventNotification face_event_notification = 192;
+}
