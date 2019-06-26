@@ -130,3 +130,8 @@ results
 
 # Database file
 *.db/
+
+# Electron
+node_modules
+out
+npm-debug.log

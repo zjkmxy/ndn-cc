@@ -4,8 +4,6 @@ from ndncc.server import Server
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO
 
-from pyndn.encoding import ProtobufTlv
-from ndncc.nfd_face_mgmt_pb2 import ControlResponseMessage
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '3mlf4j8um6mg2-qlhyzk4ngxxk$8t4hh&$r)%968koxd3i(j#f'
@@ -20,7 +18,7 @@ thread.start()
 
 @app.route('/')
 def hello_world():
-    return 'Hello World!'
+    return render_template('main.html')
 
 
 @app.route('/faceevents')
