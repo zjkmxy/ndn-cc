@@ -2,7 +2,7 @@ from pyndn import Face, Interest, Data, Name
 from pyndn.security import KeyChain
 from pyndn.encoding import ProtobufTlv
 from .asyncndn import fetch_data_packet
-from .nfd_face_mgmt_pb2 import FaceEventNotificationMessage
+from .nfd_face_mgmt_pb2 import FaceEventNotificationMessage, ControlCommandMessage, ControlResponseMessage
 import asyncio
 
 
@@ -66,6 +66,11 @@ class Server:
         ret['flags'] = str(msg.flags)
         return ret
 
+    @staticmethod
+    def response_to_dict(msg):
+        ret = {'st_code': msg.st_code, 'st_text': msg.st_text.decode('utf-8')}
+        return ret
+
     async def face_event(self):
         last_seq = -1
         while self.running:
@@ -99,11 +104,63 @@ class Server:
 
             await asyncio.sleep(0.1)
 
-    @staticmethod
-    def run_server(work_loop, emit_func):
+    async def add_face(self, uri):
+        if uri[-1] == "/":
+            uri = uri[:-1]
+        if uri.find("://") < 0:
+            uri = "udp4://" + uri
+        if len(uri.split(":")) < 3:
+            uri = uri + ":6363"
+
+        interest = self.make_command('faces', 'create', uri=uri)
+        print("SEND", interest.name)
+        ret = await fetch_data_packet(self.face, interest)
+        print("RESULT")
+        if isinstance(ret, Data):
+            response = ControlResponseMessage()
+            try:
+                ProtobufTlv.decode(response, ret.content)
+
+                dic = self.response_to_dict(response.control_response)
+                print(dic)
+                return dic
+            except RuntimeError as exc:
+                print('Decode failed', exc)
+        return None
+
+    def run_server(self, work_loop):
         asyncio.set_event_loop(work_loop)
         try:
-            server = Server(emit_func)
-            work_loop.run_until_complete(server.run())
+            work_loop.run_until_complete(self.run())
         finally:
             work_loop.close()
+
+    def make_command(self, module, verb, **kwargs):
+        name = Name('/localhost/nfd').append(module).append(verb)
+
+        # Command Parameters
+        cmd_param = ControlCommandMessage()
+        if 'name' in kwargs:
+            name_param = kwargs['name']
+            for compo in name_param:
+                cmd_param.control_parameters.name.component.append(compo.getValue().toBytes())
+        if 'strategy' in kwargs:
+            name_param = kwargs['strategy']
+            for compo in name_param:
+                cmd_param.control_parameters.strategy.component.append(compo.getValue().toBytes())
+        for key in ['uri', 'local_uri']:
+            if key in kwargs:
+                setattr(cmd_param.control_parameters, key, kwargs[key].encode('utf-8'))
+        for key in ['face_id', 'origin', 'cost', 'capacity', 'count', 'base_cong_mark', 'def_cong_thres',
+                    'mtu', 'flags', 'mask', 'exp_period']:
+            if key in kwargs:
+                setattr(cmd_param.control_parameters, key, kwargs[key])
+        param_blob = ProtobufTlv.encode(cmd_param)
+        name.append(Name.Component(param_blob))
+
+        # Command Interest Components
+        ret = Interest(name)
+        ret.canBePrefix = True
+        self.face.makeCommandInterest(ret)
+
+        return ret

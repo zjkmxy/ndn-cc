@@ -1,10 +1,11 @@
 import asyncio
+import threading
 from typing import Union
 from pyndn import Face, Interest, NetworkNack, Data
 
 
 async def fetch_data_packet(face: Face, interest: Interest) -> Union[Data, NetworkNack, None]:
-    done = asyncio.Event()
+    done = threading.Event()
     result = None
 
     def on_data(_interest, data: Data):
@@ -21,6 +22,12 @@ async def fetch_data_packet(face: Face, interest: Interest) -> Union[Data, Netwo
         result = network_nack
         done.set()
 
+    async def wait_for_event():
+        ret = False
+        while not ret:
+            ret = done.wait(0.01)
+            await asyncio.sleep(0.01)
+
     face.expressInterest(interest, on_data, on_timeout, on_network_nack)
-    await done.wait()
+    await wait_for_event()
     return result
