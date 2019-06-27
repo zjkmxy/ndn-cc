@@ -8,7 +8,7 @@ from pyndn import Interest, Data
 from ndncc.nfd_face_mgmt_pb2 import GeneralStatus, FaceStatusMessage
 from pyndn.encoding import ProtobufTlv
 
-
+# Serve static content from /assets
 app = Flask(__name__,
             static_url_path='',
             static_folder='assets')
@@ -73,7 +73,7 @@ def facelist():
 
 @app.route('/face-events')
 def index():
-    return render_template('faceevents.html')
+    return render_template('face-events.html')
 
 
 @app.route('/add-face')
