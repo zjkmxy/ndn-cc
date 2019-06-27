@@ -33,7 +33,7 @@ async def fetch_data_packet(face: Face, interest: Interest) -> Union[Data, Netwo
     return result
 
 
-def decode_msg(msg) -> dict:
+def decode_dict(msg) -> dict:
     ret = {}
     for field in msg.DESCRIPTOR.fields:
         if field.type == field.TYPE_MESSAGE:
@@ -43,4 +43,11 @@ def decode_msg(msg) -> dict:
             ret[field.name] = str(getattr(msg, field.name))
         elif field.type == field.TYPE_BYTES:
             ret[field.name] = getattr(msg, field.name).decode('utf-8')
+    return ret
+
+
+def decode_list(lst) -> list:
+    ret = []
+    for item in lst:
+        ret.append(decode_dict(item))
     return ret

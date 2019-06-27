@@ -3,9 +3,9 @@ import asyncio
 from ndncc.server import Server
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO
-from ndncc.asyncndn import fetch_data_packet, decode_msg
+from ndncc.asyncndn import fetch_data_packet, decode_dict, decode_list
 from pyndn import Interest, Data
-from ndncc.nfd_face_mgmt_pb2 import GeneralStatus
+from ndncc.nfd_face_mgmt_pb2 import GeneralStatus, FaceStatusMessage
 from pyndn.encoding import ProtobufTlv
 
 
@@ -39,8 +39,30 @@ def general_status():
         except RuntimeError as exc:
             print("Decoding Error", exc)
             return "NFD is not running"
-        status = decode_msg(msg)
+        status = decode_dict(msg)
         return render_template('general-status.html', name=name, status=status)
+    else:
+        print("No response")
+        return "NFD is not running"
+
+
+@app.route('/face-list')
+def facelist():
+    interest = Interest("/localhost/nfd/faces/list")
+    interest.mustBeFresh = True
+    interest.canBePrefix = True
+    ret = run_until_complete(fetch_data_packet(server.face, interest))
+    if isinstance(ret, Data):
+        name = ret.name.toUri()
+        msg = FaceStatusMessage()
+        try:
+            ProtobufTlv.decode(msg, ret.content)
+        except RuntimeError as exc:
+            print("Decoding Error", exc)
+            return "NFD is not running"
+        face_list = decode_list(msg.face_status)
+        fields = list(face_list[0].keys())
+        return render_template('face-list.html', fields=fields, face_list=face_list)
     else:
         print("No response")
         return "NFD is not running"
