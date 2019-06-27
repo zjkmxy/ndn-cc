@@ -9,7 +9,10 @@ from ndncc.nfd_face_mgmt_pb2 import GeneralStatus, FaceStatusMessage
 from pyndn.encoding import ProtobufTlv
 
 
-app = Flask(__name__)
+app = Flask(__name__,
+            static_url_path='',
+            static_folder='assets')
+
 app.config['SECRET_KEY'] = '3mlf4j8um6mg2-qlhyzk4ngxxk$8t4hh&$r)%968koxd3i(j#f'
 socketio = SocketIO(app)
 
@@ -68,7 +71,7 @@ def facelist():
         return "NFD is not running"
 
 
-@app.route('/faceevents')
+@app.route('/face-events')
 def index():
     return render_template('faceevents.html')
 
@@ -87,11 +90,6 @@ def exec_addface():
     else:
         print(ret['st_code'], ret['st_text'])
     return render_template('add-face.html', **ret)
-
-
-@app.route('/socket.io.js')
-def socket_io_js():
-    return render_template('socket.io.js')
 
 
 @socketio.on('connect')

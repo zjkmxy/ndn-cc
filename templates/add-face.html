@@ -1,21 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Add Face</title>
+  <meta charset="UTF-8">
+  <title>Add Face</title>
+  <link rel="stylesheet" href="css/add-face.css">
 </head>
 <body>
-    {% if st_code %}
-        <p>{{ st_code }} {{ st_text }}</p>
-    {% endif %}
-    <form action="../exec/add-face" method="post">
-        <p>
-            <label for="ip">IP Addr</label>
-            <input type="text" name="ip" id="ip"/>
-        </p>
-        <p>
-            <button type="submit">Create</button>
-        </p>
-    </form>
+  {% if st_code %}
+    <p>{{ st_code }} {{ st_text }}</p>
+  {% endif %}
+  <form action="../exec/add-face" method="post">
+    <p>
+      <label for="ip">IP Addr</label>
+      <input type="text" name="ip" id="ip"/>
+    </p>
+    <p>
+      <button type="submit">Create</button>
+    </p>
+  </form>
 </body>
 </html>

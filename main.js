@@ -1,4 +1,5 @@
 const { app, BrowserWindow } = require('electron')
+var debug = /--debug/.test(process.argv[2])
 
 var mainWindow = null;
 
@@ -9,7 +10,6 @@ app.on('window-all-closed', function() {
 });
 
 app.on('ready', function() {
-  // call python?
   var env = Object.create( process.env );
   env.LC_ALL = 'en_US.UTF-8';
   env.LANG = 'en_US.UTF-8';
@@ -20,13 +20,16 @@ app.on('ready', function() {
 
   var openWindow = function(){
     mainWindow = new BrowserWindow({width: 800, height: 600});
-    // mainWindow.loadURL('file://' + __dirname + '/index.html');
-    mainWindow.loadURL(mainAddr);
-    mainWindow.webContents.openDevTools();
+    mainWindow.loadURL('file://' + __dirname + '/index.html');
     mainWindow.on('closed', function() {
       mainWindow = null;
       subpy.kill('SIGINT');
     });
+
+    /* Launch debug tools, usage: npm run debug */
+    if (debug) {
+      mainWindow.webContents.openDevTools();
+    }
   };
 
   var startUp = function(){

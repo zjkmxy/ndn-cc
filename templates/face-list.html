@@ -1,25 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>General Status</title>
+  <meta charset="UTF-8">
+  <title>General Status</title>
+  <link rel="stylesheet" href="css/face_list.css">
 </head>
 <body>
-    <h1>{{ name }}</h1>
-    <table>
-        <caption>Face Lists</caption>
-        <tr>
-            {% for field in fields %}
-                <th>{{ field|e }}</th>
-            {% endfor %}
-        </tr>
-        {% for item in face_list %}
-        <tr>
-            {% for field in fields %}
-                <td>{{ item[field]|e }}</td>
-            {% endfor %}
-        </tr>
-        {% endfor %}
-    </table>
+  <h1>{{ name }}</h1>
+  <table>
+    <caption>Face Lists</caption>
+    <tr>
+      {% for field in fields %}
+        <th>{{ field|e }}</th>
+      {% endfor %}
+    </tr>
+    {% for item in face_list %}
+    <tr>
+      {% for field in fields %}
+        <td>{{ item[field]|e }}</td>
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </table>
 </body>
 </html>

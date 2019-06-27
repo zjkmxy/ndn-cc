@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="assets/css/index.css">
+  <script src="scripts/index.js"></script>
+</head>
+
+<body>
+  <div class="container">
+    <div class="menu">
+      <img class="logo" src="assets/img/logo.png">
+      <h2 class="title">NDN Control Center</h2>
+      <input type="text" id="menu_search" onkeyup="do_menu_search()" placeholder="Search ..." title="Type in a category">
+      <div id="div_menu_items">
+        <input type="button" value="Status" onclick="set_content('http://localhost:5000')">
+        <input type="button" value="Face List" onclick="set_content('http://localhost:5000/face-list')">
+        <input type="button" value="Face Events" onclick="set_content('http://localhost:5000/face-events')">
+        <input type="button" value="Add Face" onclick="set_content('http://localhost:5000/add-face')">
+      </div>
+    </div>
+  
+    <div class="content">
+      <iframe id="content_frame" height="100%" width="100%" style="border:1px solid gray;" 
+              src="http://localhost:5000"></iframe>
+    </div>
+  </div>
+</body>
+
+</html>
