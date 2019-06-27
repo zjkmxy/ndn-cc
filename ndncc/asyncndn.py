@@ -31,3 +31,16 @@ async def fetch_data_packet(face: Face, interest: Interest) -> Union[Data, Netwo
     face.expressInterest(interest, on_data, on_timeout, on_network_nack)
     await wait_for_event()
     return result
+
+
+def decode_msg(msg) -> dict:
+    ret = {}
+    for field in msg.DESCRIPTOR.fields:
+        if field.type == field.TYPE_MESSAGE:
+            pass
+        elif (field.type == field.TYPE_UINT32 or
+              field.type == field.TYPE_UINT64):
+            ret[field.name] = str(getattr(msg, field.name))
+        elif field.type == field.TYPE_BYTES:
+            ret[field.name] = getattr(msg, field.name).decode('utf-8')
+    return ret

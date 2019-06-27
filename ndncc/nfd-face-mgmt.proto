@@ -55,3 +55,31 @@ message ControlResponseMessage {
   // A RepoCommandParameterMessage has one RepoCommandParameter.
   required ControlResponse control_response = 101;
 }
+
+message GeneralStatus {
+  optional bytes nfd_version = 128;
+  optional uint64 start_timestamp = 129;
+  optional uint64 current_timestamp = 130;
+  optional uint64 n_name_tree_entries = 131;
+  optional uint64 n_fib_entries = 132;
+  optional uint64 n_pit_entries = 133;
+  optional uint64 n_measurement_entries = 134;
+  optional uint64 n_cs_entries = 135;
+  optional uint64 n_in_interests = 144;
+  optional uint64 n_in_data = 145;
+  optional uint64 n_in_nacks = 151;
+  optional uint64 n_out_interests = 146;
+  optional uint64 n_out_data = 147;
+  optional uint64 n_out_nacks = 152;
+  optional uint64 n_satisfied_interests = 153;
+  optional uint64 n_unsatisfied_interests = 154;
+  optional uint64 n_fragmentation_errors = 200;
+  optional uint64 n_out_over_mtu = 201;
+  optional uint64 n_in_lp_invalid = 202;
+  optional uint64 n_reassembly_timeouts = 203;
+  optional uint64 n_in_net_invalid = 204;
+  optional uint64 n_acknowledged = 205;
+  optional uint64 n_retransmitted = 206;
+  optional uint64 n_retx_exhausted = 207;
+  optional uint64 n_congestion_marked = 208;
+}
