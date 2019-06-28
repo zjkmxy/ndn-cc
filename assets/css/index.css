@@ -1,7 +1,7 @@
 /* Force full width & height. */
 html, body, .viewport {
-  width: 98%;
-  height: 96%;
+  width: 100%;
+  height: 100%;
 }
 
 /* Flexbox */
@@ -12,14 +12,14 @@ html, body, .viewport {
 
 /* Left column (menu) */
 .menu {
-  flex: 35%;
+  flex: 250px;
   height: 100%;
   padding: 15px 0;
 }
   
 /* Right column (page content) */
 .content {
-  flex: 65%;
+  flex: calc(100% - 250px);
   padding: 15px;
 }
 #content_frame {

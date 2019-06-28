@@ -18,11 +18,6 @@ npm install
 
 Execute
 =======
-Python server:
-```bash
-./venv/bin/python app.py
-```
-
 Electron:
 ```bash
 npm start

@@ -39,7 +39,7 @@ app.on('ready', function() {
         openWindow();
       })
       .catch(function(err){
-        //console.log('waiting for the server start...');
+        // console.log('waiting for the server start...');
         startUp();
       });
   };

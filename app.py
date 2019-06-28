@@ -50,7 +50,7 @@ def general_status():
 
 
 @app.route('/face-list')
-def facelist():
+def face_list():
     interest = Interest("/localhost/nfd/faces/list")
     interest.mustBeFresh = True
     interest.canBePrefix = True
@@ -72,32 +72,32 @@ def facelist():
 
 
 @app.route('/face-events')
-def index():
+def face_events():
     return render_template('face-events.html')
 
 
 @app.route('/add-face')
-def addface():
+def add_face():
     return render_template('add-face.html')
 
 @app.route('/add-route')
-def addroute():
+def add_route():
     return render_template('add-route.html')
 
 @app.route('/route-list')
-def routelist():
+def route_list():
     return render_template('route-list.html')
 
 @app.route('/auto-configuration')
-def autoconfiguration():
+def auto_configuration():
     return render_template('auto-configuration.html')
 
 @app.route('/certificate-request')
-def certificaterequest():
+def certificate_request():
     return render_template('certificate-request.html')
 
 @app.route('/key-management')
-def keymanagement():
+def key_management():
     return render_template('key-management.html')
 
 @app.route('/exec/add-face', methods=['POST'])
