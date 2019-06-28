@@ -80,6 +80,25 @@ def index():
 def addface():
     return render_template('add-face.html')
 
+@app.route('/add-route')
+def addroute():
+    return render_template('add-route.html')
+
+@app.route('/route-list')
+def routelist():
+    return render_template('route-list.html')
+
+@app.route('/auto-configuration')
+def autoconfiguration():
+    return render_template('auto-configuration.html')
+
+@app.route('/certificate-request')
+def certificaterequest():
+    return render_template('certificate-request.html')
+
+@app.route('/key-management')
+def keymanagement():
+    return render_template('key-management.html')
 
 @app.route('/exec/add-face', methods=['POST'])
 def exec_addface():
@@ -91,6 +110,16 @@ def exec_addface():
         print(ret['st_code'], ret['st_text'])
     return render_template('add-face.html', **ret)
 
+
+# @app.route('/exec/add-route', methods=['POST'])
+# def exec_addroute():
+#     uri = request.form['TODO']
+#     ret = run_until_complete(server.add_route(prefix, faceid))
+#     if ret is None:
+#         print("No response")
+#     else:
+#         print(ret['st_code'], ret['st_text'])
+#     return render_template('add-route.html', **ret)
 
 @socketio.on('connect')
 def face_event_socket():

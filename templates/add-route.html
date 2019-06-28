@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Add Route</title>
+  <link rel="stylesheet" href="css/add-face.css">
+</head>
+<body>
+    {% if st_code %}
+    <p>{{ st_code }} {{ st_text }}</p>
+    {% endif %}
+  <form action="../exec/add-route" method="post">
+    <p>
+      <label for="ip">Prefix</label>
+      <input type="text" name="prefix" id="prefix"/>
+    </p>
+    <p>
+        <label for="ip">Face ID</label>
+        <input type="text" name="faceid" id="faceid"/>
+      </p>
+    <p>
+      <button type="submit">Add</button>
+    </p>
+  </form>
+</body>
+</html>

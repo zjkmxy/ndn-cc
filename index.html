@@ -16,11 +16,16 @@
       <div id="div_menu_items">
         <input type="button" value="Status" onclick="set_content('http://localhost:5000')">
         <input type="button" value="Face List" onclick="set_content('http://localhost:5000/face-list')">
+        <input type="button" value="Route List" onclick="set_content('http://localhost:5000/route-list')">
         <input type="button" value="Face Events" onclick="set_content('http://localhost:5000/face-events')">
         <input type="button" value="Add Face" onclick="set_content('http://localhost:5000/add-face')">
+        <input type="button" value="Add Route" onclick="set_content('http://localhost:5000/add-route')">
+        <input type="button" value="Auto Configuration" onclick="set_content('http://localhost:5000/auto-configuration')">
+        <input type="button" value="Certificate Request" onclick="set_content('http://localhost:5000/certificate-request')">
+        <input type="button" value="Key Management" onclick="set_content('http://localhost:5000/key-management')">
       </div>
     </div>
-  
+
     <div class="content">
       <iframe id="content_frame" height="100%" width="100%" style="border:1px solid gray;" 
               src="http://localhost:5000"></iframe>
