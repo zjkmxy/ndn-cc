@@ -27,7 +27,7 @@ def run_until_complete(event):
     asyncio.set_event_loop(asyncio.new_event_loop())
     return asyncio.get_event_loop().run_until_complete(event)
 
-# General
+
 @app.route('/')
 def general_status():
     interest = Interest("/localhost/nfd/status/general")
@@ -49,7 +49,11 @@ def general_status():
         return "NFD is not running"
 
 
-# Face
+### Face
+@app.route('/add-face')
+def add_face():
+    return render_template('add-face.html')
+
 @app.route('/exec/add-face', methods=['POST'])
 def exec_addface():
     uri = request.form['ip']
@@ -85,17 +89,25 @@ def face_list():
 def face_events():
     return render_template('face-events.html')
 
-@app.route('/add-face')
-def add_face():
-    return render_template('add-face.html')
-
 # TODO: Remove face?
 
 
-# Route
-@app.route('/add-route', methods=['POST'])
+### Route
+@app.route('/add-route')
 def add_route():
     return render_template('add-route.html')
+
+@app.route('/exec/add-route', methods=['POST'])
+def exec_addroute():
+    name = request.form['name']
+    faceid = request.form['faceid']
+    ret = run_until_complete(server.add_route(name, faceid))
+    if ret is None:
+        print("No response")
+    else:
+        print(ret['st_code'], ret['st_text'])
+    return render_template('add-route.html', **ret)
+
 
 @app.route('/route-list')
 def route_list():
@@ -121,7 +133,7 @@ def route_list():
     return render_template('route-list.html')
 
 
-# Others
+### Others
 @app.route('/auto-configuration')
 def auto_configuration():
     return render_template('auto-configuration.html')

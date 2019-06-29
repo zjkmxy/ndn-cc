@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Add Route</title>
-  <link rel="stylesheet" href="css/add-face.css">
+  <link rel="stylesheet" href="css/add-route.css">
 </head>
 <body>
     {% if st_code %}
@@ -11,11 +11,11 @@
     {% endif %}
   <form action="../exec/add-route" method="post">
     <p>
-      <label for="ip">Prefix</label>
-      <input type="text" name="prefix" id="prefix"/>
+      <label for="name">Prefix</label>
+      <input type="text" name="name" id="name"/>
     </p>
     <p>
-        <label for="ip">Face ID</label>
+        <label for="faceid">Face ID</label>
         <input type="text" name="faceid" id="faceid"/>
       </p>
     <p>

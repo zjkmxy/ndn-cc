@@ -127,6 +127,24 @@ class Server:
             except RuntimeError as exc:
                 print('Decode failed', exc)
         return None
+    
+    async def add_route(self, name: str, faceid: int):
+        # TODO: What's the param type of make_command()
+        interest = self.make_command('rib', 'register', name=name.strip('/').split('/'), faceid=faceid)
+        print("SEND", interest.name)
+        ret = await fetch_data_packet(self.face, interest)
+        print("RESULT")
+        if isinstance(ret, Data):
+            response = ControlResponseMessage()
+            try:
+                ProtobufTlv.decode(response, ret.content)
+
+                dic = self.response_to_dict(response.control_response)
+                print(dic)
+                return dic
+            except RuntimeError as exc:
+                print('Decode failed', exc)
+        return None
 
     def run_server(self, work_loop):
         asyncio.set_event_loop(work_loop)
