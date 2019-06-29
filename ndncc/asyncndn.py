@@ -35,8 +35,9 @@ async def fetch_data_packet(face: Face, interest: Interest) -> Union[Data, Netwo
 
 def decode_dict(msg) -> dict:
     """
-    Recursive decode ProtoBuf-type objects
+    Recursively decode ProtoBuf-type objects
     TODO: Xinyu, is this recursion correct?
+    TODO: Should the callee or caller do decode('utf-8')?
     """
     ret = {}
     for field in msg.DESCRIPTOR.fields:
@@ -52,12 +53,17 @@ def decode_dict(msg) -> dict:
 
 def decode_list(lst) -> list:
     """
-    Recursively decode ProtoBuf containers. Because Protobuf Scalar Containers will 
-    decode to python primitive types, need to process separately
+    Recursively decode ProtoBuf containers. Because traversingProtobuf Scalar Containers 
+    will yield python primitive types, need to process separately.
+    Note: Protobuf Name type will be decoded to {'component': [...]}, and the callee is
+    responsbile for further processing.
+    TODO: Should the callee or caller do decode('utf-8')?
     """
     ret = []
     for item in lst:
-        if isinstance(item, (int, float, str, bool, bytes)):
+        if isinstance(item, bytes):
+            ret.append(item.decode('utf-8'))
+        elif isinstance(item, (int, float, str, bool, bytes)):
             ret.append(item)
         else:
             ret.append(decode_dict(item))

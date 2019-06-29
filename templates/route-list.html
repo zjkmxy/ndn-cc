@@ -6,6 +6,31 @@
   <link rel="stylesheet" href="css/add-face.css">
 </head>
 <body>
-
+  <h1>{{ name }}</h1>
+  <table>
+    <caption>Route Lists</caption>
+    <tr>
+      {% for field in fields %}
+        <th>{{ field|e }}</th>
+      {% endfor %}
+    </tr>
+    {% for rib_entry in rib_list %}
+    <tr>
+      <td>{{ "/" + "/".join(rib_entry[fields[0]]['component']) }}</td>
+      <td>
+        <table>
+          {% for field in rib_entry[fields[1]][0].keys() %}
+          <tr>
+            <td>{{ field }}</td>
+            {% for route in rib_entry[fields[1]] %}
+              <td>{{ route[field] }}</td>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+        </table>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
 </body>
 </html>
