@@ -113,9 +113,7 @@ class Server:
             uri = uri + ":6363"
 
         interest = self.make_command('faces', 'create', uri=uri)
-        print("SEND", interest.name)
         ret = await fetch_data_packet(self.face, interest)
-        print("RESULT")
         if isinstance(ret, Data):
             response = ControlResponseMessage()
             try:
@@ -127,13 +125,12 @@ class Server:
             except RuntimeError as exc:
                 print('Decode failed', exc)
         return None
-    
-    async def add_route(self, name: str, faceid: int):
-        # TODO: What's the param type of make_command()
-        interest = self.make_command('rib', 'register', name=name.strip('/').split('/'), faceid=faceid)
-        print("SEND", interest.name)
+
+    async def add_route(self, name: str, face_id: int):
+        interest = self.make_command('rib', 'register',
+                                     name=Name(name),
+                                     face_id=face_id)
         ret = await fetch_data_packet(self.face, interest)
-        print("RESULT")
         if isinstance(ret, Data):
             response = ControlResponseMessage()
             try:

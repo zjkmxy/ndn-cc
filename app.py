@@ -100,8 +100,8 @@ def add_route():
 @app.route('/exec/add-route', methods=['POST'])
 def exec_addroute():
     name = request.form['name']
-    faceid = request.form['faceid']
-    ret = run_until_complete(server.add_route(name, faceid))
+    face_id = int(request.form['face_id'])
+    ret = run_until_complete(server.add_route(name, face_id))
     if ret is None:
         print("No response")
     else:
