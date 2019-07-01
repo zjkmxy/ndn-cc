@@ -120,8 +120,18 @@ def exec_addroute():
         print("No response")
     else:
         print(ret['st_code'], ret['st_text'])
-    return render_template('add-route.html', **ret)
+    return redirect(url_for('route_list', st_code=ret['st_code'], st_text=ret['st_text']))
 
+@app.route('/exec/remove-route', methods=['POST'])
+def exec_removeroute():
+    name = request.form['name']
+    face_id = int(request.form['face_id'])
+    ret = run_until_complete(server.remove_route(name, face_id))
+    if ret is None:
+        print("No response")
+    else:
+        print(ret['st_code'], ret['st_text'])
+    return redirect(url_for('route_list', st_code=ret['st_code'], st_text=ret['st_text']))
 
 @app.route('/route-list')
 def route_list():
@@ -146,7 +156,7 @@ def route_list():
             print("Decoding Error", exc)
             return "NFD is not running"
         rib_list = decode_route_list(msg.rib_entry)
-        return render_template('route-list.html', rib_list=rib_list)
+        return render_template('route-list.html', rib_list=rib_list, **request.args.to_dict())
     else:
         print("No response: route-list")
         return "NFD is not running"

@@ -143,8 +143,23 @@ class Server:
 
     async def add_route(self, name: str, face_id: int):
         interest = self.make_command('rib', 'register',
-                                     name=Name(name),
-                                     face_id=face_id)
+                                     name=Name(name), face_id=face_id)
+        ret = await fetch_data_packet(self.face, interest)
+        if isinstance(ret, Data):
+            response = ControlResponseMessage()
+            try:
+                ProtobufTlv.decode(response, ret.content)
+
+                dic = self.response_to_dict(response.control_response)
+                print(dic)
+                return dic
+            except RuntimeError as exc:
+                print('Decode failed', exc)
+        return None
+
+    async def remove_route(self, name: str, face_id: int):
+        interest = self.make_command('rib', 'unregister', 
+                                     name=Name(name), face_id=face_id)
         ret = await fetch_data_packet(self.face, interest)
         if isinstance(ret, Data):
             response = ControlResponseMessage()
