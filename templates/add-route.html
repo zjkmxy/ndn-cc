@@ -6,9 +6,9 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/add-route.css') }}">
 </head>
 <body>
-    {% if st_code %}
+  {% if st_code %}
     <p>{{ st_code }} {{ st_text }}</p>
-    {% endif %}
+  {% endif %}
   <form action="../exec/add-route" method="post">
     <p>
       <label for="name">Prefix</label>

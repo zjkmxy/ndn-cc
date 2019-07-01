@@ -1,7 +1,7 @@
 import asyncio
 import threading
-from typing import Union
-from pyndn import Face, Interest, NetworkNack, Data
+from typing import Union, Dict, List
+from pyndn import Face, Interest, NetworkNack, Data, Name
 
 
 async def fetch_data_packet(face: Face, interest: Interest) -> Union[Data, NetworkNack, None]:
@@ -33,38 +33,41 @@ async def fetch_data_packet(face: Face, interest: Interest) -> Union[Data, Netwo
     return result
 
 
-def decode_dict(msg) -> dict:
+def decode_dict(msg) -> Dict[str, str]:
     """
-    Recursively decode ProtoBuf-type objects
-    TODO: Xinyu, is this recursion correct?
-    TODO: Should the callee or caller do decode('utf-8')?
+    Generate a Dict from a specified Protobuf message.
+    This function is used only to generate a printable table.
+    That means not every field is covered in the result.
     """
     ret = {}
     for field in msg.DESCRIPTOR.fields:
-        if field.label == field.LABEL_REPEATED:
-            ret[field.name] = decode_list(getattr(msg, field.name))
-        elif field.type == field.TYPE_MESSAGE:
-            ret[field.name] = decode_dict(getattr(msg, field.name))
-        elif (field.type == field.TYPE_UINT32 or field.type == field.TYPE_UINT64):
+        if field.type == field.TYPE_MESSAGE:
+            # Ignore this field.
+            # Manual processing needed.
+            pass
+        elif (field.type == field.TYPE_UINT32 or
+              field.type == field.TYPE_UINT64):
             ret[field.name] = str(getattr(msg, field.name))
         elif field.type == field.TYPE_BYTES:
             ret[field.name] = getattr(msg, field.name).decode('utf-8')
     return ret
 
-def decode_list(lst) -> list:
+
+def decode_list(lst) -> List[Dict[str, str]]:
     """
-    Recursively decode ProtoBuf containers. Because traversingProtobuf Scalar Containers 
-    will yield python primitive types, need to process separately.
-    Note: Protobuf Name type will be decoded to {'component': [...]}, and the callee is
-    responsbile for further processing.
-    TODO: Should the callee or caller do decode('utf-8')?
+    Generate a table for each item in the lst.
     """
     ret = []
     for item in lst:
-        if isinstance(item, bytes):
-            ret.append(item.decode('utf-8'))
-        elif isinstance(item, (int, float, str, bool, bytes)):
-            ret.append(item)
-        else:
-            ret.append(decode_dict(item))
+        ret.append(decode_dict(item))
     return ret
+
+
+def decode_name(name) -> str:
+    """
+    Convert a Protobuf Name to uri
+    """
+    ret = Name()
+    for comp in name.component:
+        ret.append(comp.decode('utf-8'))
+    return ret.toUri()

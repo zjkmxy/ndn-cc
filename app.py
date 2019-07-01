@@ -3,7 +3,7 @@ import asyncio
 from ndncc.server import Server
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO
-from ndncc.asyncndn import fetch_data_packet, decode_dict, decode_list
+from ndncc.asyncndn import fetch_data_packet, decode_dict, decode_list, decode_name
 from pyndn import Interest, Data
 from ndncc.nfd_face_mgmt_pb2 import GeneralStatus, FaceStatusMessage, RibStatusMessage
 from pyndn.encoding import ProtobufTlv
@@ -116,6 +116,14 @@ def exec_addroute():
 
 @app.route('/route-list')
 def route_list():
+    def decode_route_list(msg):
+        ret = []
+        for item in msg:
+            name = decode_name(item.name)
+            routes = decode_list(item.route)
+            ret.append((name, routes))
+        return ret
+
     interest = Interest("/localhost/nfd/rib/list")
     interest.mustBeFresh = True
     interest.canBePrefix = True
@@ -128,14 +136,11 @@ def route_list():
         except RuntimeError as exc:
             print("Decoding Error", exc)
             return "NFD is not running"
-        rib_list = decode_list(msg.rib_entry)
-        fields = list(rib_list[0].keys())
-        return render_template('route-list.html', fields=fields, rib_list=rib_list)
+        rib_list = decode_route_list(msg.rib_entry)
+        return render_template('route-list.html', rib_list=rib_list)
     else:
         print("No response: route-list")
         return "NFD is not running"
-
-    return render_template('route-list.html')
 
 
 ### Others
@@ -143,24 +148,15 @@ def route_list():
 def auto_configuration():
     return render_template('auto-configuration.html')
 
+
 @app.route('/certificate-request')
 def certificate_request():
     return render_template('certificate-request.html')
 
+
 @app.route('/key-management')
 def key_management():
     return render_template('key-management.html')
-
-
-
-@socketio.on('connect')
-def face_event_socket():
-    print("CONNECTED")
-
-
-@socketio.on('my event')
-def face_event_socket(json):
-    print("MY EVENT" + str(json))
 
 
 if __name__ == '__main__':

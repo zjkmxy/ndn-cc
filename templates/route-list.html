@@ -6,28 +6,31 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/route-list.css') }}">
 </head>
 <body>
-  <h1>{{ name }}</h1>
+  <h1>{{ name|e }}</h1>
   <table>
     <caption>Route Lists</caption>
     <tr>
-      {% for field in fields %}
-        <th>{{ field|e }}</th>
-      {% endfor %}
+      <th>Name</th>
+      <th>Route</th>
     </tr>
     {% for rib_entry in rib_list %}
     <tr>
-      <td>{{ "/" + "/".join(rib_entry[fields[0]]['component']) }}</td>
+      <td>{{ rib_entry[0] }}</td>
       <td>
-        <table>
-          {% for field in rib_entry[fields[1]][0].keys() %}
-          <tr>
-            <td>{{ field }}</td>
-            {% for route in rib_entry[fields[1]] %}
-              <td>{{ route[field] }}</td>
-            {% endfor %}
-          </tr>
-          {% endfor %}
-        </table>
+        {% for route in rib_entry[1] %}
+          <table>
+            <tr>
+              {% for field in route.keys() %}
+                <th>{{ field|e }}</th>
+              {%  endfor %}
+            </tr>
+            <tr>
+              {% for field in route.keys() %}
+                <td>{{ route[field]|e }}</td>
+              {%  endfor %}
+            </tr>
+          </table>
+        {% endfor %}
       </td>
     </tr>
     {% endfor %}
