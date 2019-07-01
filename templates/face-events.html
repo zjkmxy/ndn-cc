@@ -8,7 +8,7 @@
 <body>
   <textarea id="chat-log" cols="100" rows="20" readonly="readonly"></textarea><br/>
 </body>
-<script src="{{ url_for('static', filename='css/socket.io.js') }}" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
+<script src="{{ url_for('static', filename='socket.io.js') }}" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
 <script>
   var socket = io();
   socket.on('connect', function() {
