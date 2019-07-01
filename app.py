@@ -1,7 +1,7 @@
 import threading
 import asyncio
 from ndncc.server import Server
-from flask import Flask, render_template, request
+from flask import Flask, redirect, render_template, request, url_for
 from flask_socketio import SocketIO
 from ndncc.asyncndn import fetch_data_packet, decode_dict, decode_list, decode_name
 from pyndn import Interest, Data
@@ -67,7 +67,17 @@ def exec_addface():
         print("No response")
     else:
         print(ret['st_code'], ret['st_text'])
-    return render_template('add-face.html', **ret)
+    return redirect(url_for('face_list', st_code=ret['st_code'], st_text=ret['st_text']))
+
+@app.route('/exec/remove-face', methods=['POST'])
+def exec_removeface():
+    face_id = int(request.form['face_id'])
+    ret = run_until_complete(server.remove_face(face_id))
+    if ret is None:
+        print("No response")
+    else:
+        print(ret['st_code'], ret['st_text'])
+    return redirect(url_for('face_list', st_code=ret['st_code'], st_text=ret['st_text']))
 
 @app.route('/face-list')
 def face_list():
@@ -85,7 +95,8 @@ def face_list():
             return "NFD is not running"
         face_list = decode_list(msg.face_status)
         fields = list(face_list[0].keys())
-        return render_template('face-list.html', fields=fields, face_list=face_list)
+        return render_template('face-list.html', fields=fields, face_list=face_list, 
+                               **request.args.to_dict())
     else:
         print("No response: face-list")
         return "NFD is not running"
@@ -93,8 +104,6 @@ def face_list():
 @app.route('/face-events')
 def face_events():
     return render_template('face-events.html')
-
-# TODO: Remove face?
 
 
 ### Route
