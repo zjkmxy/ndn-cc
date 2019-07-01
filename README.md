@@ -22,3 +22,8 @@ Electron:
 ```bash
 npm start
 ```
+
+Python server:
+```bash
+./venv/bin/python app.py
+```

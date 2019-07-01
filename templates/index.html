@@ -3,14 +3,14 @@
 
 <head>
   <meta charset="utf-8">
-  <link rel="stylesheet" href="assets/css/index.css">
-  <script src="scripts/index.js"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+  <script src="{{ url_for('static', filename='scripts/index.js') }}"></script>
 </head>
 
 <body>
   <div class="container">
     <div class="menu">
-      <img class="logo" src="assets/img/logo.png">
+      <img class="logo" src="{{ url_for('static', filename='img/logo.png') }}">
       <h2 class="title">NDN Control Center</h2>
       <input type="text" id="menu_search" onkeyup="do_menu_search()" placeholder="Search ..." title="Type in a category">
       <div id="div_menu_items">
@@ -28,7 +28,7 @@
 
     <div class="content">
       <iframe id="content_frame" height="100%" width="100%" style="border:1px solid gray;" 
-              src="http://localhost:5000"></iframe>
+              src="http://localhost:5000/general-status"></iframe>
     </div>
   </div>
 </body>

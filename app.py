@@ -10,8 +10,8 @@ from pyndn.encoding import ProtobufTlv
 
 # Serve static content from /assets
 app = Flask(__name__,
-            static_url_path='',
-            static_folder='assets')
+            static_url_path='/static',
+            static_folder='static')
 
 app.config['SECRET_KEY'] = '3mlf4j8um6mg2-qlhyzk4ngxxk$8t4hh&$r)%968koxd3i(j#f'
 socketio = SocketIO(app)
@@ -29,6 +29,11 @@ def run_until_complete(event):
 
 
 @app.route('/')
+def index():
+    return render_template('index.html')
+
+
+@app.route('/general-status')
 def general_status():
     interest = Interest("/localhost/nfd/status/general")
     interest.mustBeFresh = True
