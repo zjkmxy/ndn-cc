@@ -1,3 +1,4 @@
+from typing import Set
 from pyndn import Face, Interest, Data, Name
 from pyndn.security import KeyChain
 from pyndn.encoding import ProtobufTlv
@@ -208,4 +209,49 @@ class Server:
         ret.canBePrefix = True
         self.face.makeCommandInterest(ret)
 
+        return ret
+
+    @staticmethod
+    def list_key_tree():
+        """
+        Return the id-key-cert tree in a JSON like dict object.
+        """
+        pib = KeyChain().getPib()
+        identities = pib._identities._identityNames
+        ret = {}
+        default_id = pib.getDefaultIdentity().getName()
+        for id_name in identities:
+            id_obj = pib.getIdentity(Name(id_name))
+            cur_id = {'default': '*' if id_name == default_id else ' '}
+            default_key = id_obj.getDefaultKey().getName()
+
+            keys = id_obj._getKeys()._keyNames
+            cur_id['keys'] = {}
+            for key_name in keys:
+                key_obj = id_obj.getKey(Name(key_name))
+                cur_key = {'default': '*' if key_name == default_key else ' '}
+                default_cert = key_obj.getDefaultCertificate().getName()
+
+                key_type = key_obj.getKeyType()
+                if key_type <= 4:
+                    cur_key['key_type'] = ['NONE', 'RSA', 'EC', 'AES', 'HMAC'][key_type]
+                else:
+                    cur_key['key_type'] = 'unknown'
+
+                certs = key_obj._getCertificates()._certificateNames
+                cur_key['certs'] = {}
+                for cert_name in certs:
+                    cert_obj = key_obj.getCertificate(Name(cert_name))
+                    signature = cert_obj.getSignature()
+                    cur_cert = {
+                        'default': '*' if cert_name == default_cert else ' ',
+                        'not_before': str(cert_obj.getValidityPeriod().getNotBefore()),
+                        'not_after': str(cert_obj.getValidityPeriod().getNotAfter()),
+                        'issuer_id': cert_obj.getIssuerId().toEscapedString(),
+                        'key_locator': signature.getKeyLocator().getKeyName().toUri(),
+                        'signature_type': cert_obj.getSignature().__class__.__name__,
+                    }
+                    cur_key['certs'][cert_name.toUri()] = cur_cert
+                cur_id['keys'][key_name.toUri()] = cur_key
+            ret[id_name.toUri()] = cur_id
         return ret

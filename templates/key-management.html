@@ -3,9 +3,37 @@
 <head>
   <meta charset="UTF-8">
   <title>Key Management</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/add-face.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/key-management.css') }}">
 </head>
 <body>
-
+{% for id_name, id_obj in key_tree.items() %}
+  <details>
+    <summary>{{ [id_obj['default'], id_name]|join(' ')|e }}</summary>
+    <p class="lv1">
+      <b>Keys:</b>
+    </p>
+    {% for key_name, key_obj in id_obj['keys'].items() %}
+      <details class="lv1">
+        <summary>{{ [key_obj['default'], key_name]|join(' ')|e }}</summary>
+        <p class="lv2">
+          <b>KeyType:</b> {{ key_obj['key_type'] }}<br>
+          <b>Certificates:</b>
+        </p>
+        {% for cert_name, cert_obj in key_obj['certs'].items() %}
+          <details class="lv2">
+            <summary>{{ [cert_obj['default'], cert_name]|join(' ')|e }}</summary>
+            <p class="lv3">
+              <b>Validity NotBefore:</b> {{ cert_obj['not_before'] }}<br>
+              <b>Validity NotAfter:</b> {{ cert_obj['not_after'] }}<br>
+              <b>Issuer ID:</b> {{ cert_obj['issuer_id'] }}<br>
+              <b>SignatureType:</b> {{ cert_obj['signature_type'] }}<br>
+              <b>KeyLocator:</b> {{ cert_obj['key_locator'] }}<br>
+            </p>
+          </details>
+        {% endfor %}
+      </details>
+    {% endfor %}
+  </details>
+{% endfor %}
 </body>
 </html>

@@ -55,10 +55,6 @@ def general_status():
 
 
 ### Face
-@app.route('/add-face')
-def add_face():
-    return render_template('add-face.html')
-
 @app.route('/exec/add-face', methods=['POST'])
 def exec_addface():
     uri = request.form['ip']
@@ -107,10 +103,6 @@ def face_events():
 
 
 ### Route
-@app.route('/add-route')
-def add_route():
-    return render_template('add-route.html')
-
 @app.route('/exec/add-route', methods=['POST'])
 def exec_addroute():
     name = request.form['name']
@@ -175,7 +167,8 @@ def certificate_request():
 
 @app.route('/key-management')
 def key_management():
-    return render_template('key-management.html')
+    key_tree = server.list_key_tree()
+    return render_template('key-management.html', key_tree=key_tree)
 
 
 if __name__ == '__main__':
