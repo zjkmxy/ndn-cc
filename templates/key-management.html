@@ -6,23 +6,26 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/key-management.css') }}">
 </head>
 <body>
-{% for id_name, id_obj in key_tree.items() %}
+{% for id_name, id_obj in key_tree.items()|sort %}
   <details>
     <summary>{{ [id_obj['default'], id_name]|join(' ')|e }}</summary>
     <p class="lv1">
-      <b>Keys:</b>
+      <a href="ndnsec-delete?name={{ id_name|urlencode }}">Delete Identity</a><br>
+      <b>Keys:</b> <a href="ndnsec-keygen?name={{ id_name|urlencode }}">Add Key</a>
     </p>
-    {% for key_name, key_obj in id_obj['keys'].items() %}
+    {% for key_name, key_obj in id_obj['keys'].items()|sort %}
       <details class="lv1">
         <summary>{{ [key_obj['default'], key_name]|join(' ')|e }}</summary>
         <p class="lv2">
+          <a href="ndnsec-delete?name={{ key_name|urlencode }}&type=k">Delete Key</a><br>
           <b>KeyType:</b> {{ key_obj['key_type'] }}<br>
           <b>Certificates:</b>
         </p>
-        {% for cert_name, cert_obj in key_obj['certs'].items() %}
+        {% for cert_name, cert_obj in key_obj['certs'].items()|sort %}
           <details class="lv2">
             <summary>{{ [cert_obj['default'], cert_name]|join(' ')|e }}</summary>
             <p class="lv3">
+              <a href="ndnsec-delete?name={{ cert_name|urlencode }}&type=c">Delete Certificate</a><br>
               <b>Validity NotBefore:</b> {{ cert_obj['not_before'] }}<br>
               <b>Validity NotAfter:</b> {{ cert_obj['not_after'] }}<br>
               <b>Issuer ID:</b> {{ cert_obj['issuer_id'] }}<br>
@@ -35,5 +38,14 @@
     {% endfor %}
   </details>
 {% endfor %}
+<form action="ndnsec-keygen" method="get">
+  <p>
+    <label for="name">Name</label>
+    <input type="text" name="name" id="name"/>
+  </p>
+  <p>
+    <button type="submit">Create Identity</button>
+  </p>
+</form>
 </body>
 </html>

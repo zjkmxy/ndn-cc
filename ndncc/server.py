@@ -1,6 +1,6 @@
 from typing import Set
 from pyndn import Face, Interest, Data, Name
-from pyndn.security import KeyChain
+from pyndn.security import KeyChain, Pib
 from pyndn.encoding import ProtobufTlv
 from .asyncndn import fetch_data_packet
 from .nfd_face_mgmt_pb2 import FaceEventNotificationMessage, ControlCommandMessage, ControlResponseMessage
@@ -219,18 +219,27 @@ class Server:
         pib = KeyChain().getPib()
         identities = pib._identities._identityNames
         ret = {}
-        default_id = pib.getDefaultIdentity().getName()
+        try:
+            default_id = pib.getDefaultIdentity().getName()
+        except Pib.Error:
+            default_id = Name('/')
         for id_name in identities:
             id_obj = pib.getIdentity(Name(id_name))
             cur_id = {'default': '*' if id_name == default_id else ' '}
-            default_key = id_obj.getDefaultKey().getName()
+            try:
+                default_key = id_obj.getDefaultKey().getName()
+            except Pib.Error:
+                default_key = Name('/')
 
             keys = id_obj._getKeys()._keyNames
             cur_id['keys'] = {}
             for key_name in keys:
                 key_obj = id_obj.getKey(Name(key_name))
                 cur_key = {'default': '*' if key_name == default_key else ' '}
-                default_cert = key_obj.getDefaultCertificate().getName()
+                try:
+                    default_cert = key_obj.getDefaultCertificate().getName()
+                except Pib.Error:
+                    default_cert = Name('/')
 
                 key_type = key_obj.getKeyType()
                 if key_type <= 4:

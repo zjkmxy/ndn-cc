@@ -1,5 +1,6 @@
 import threading
 import asyncio
+import subprocess
 from ndncc.server import Server
 from flask import Flask, redirect, render_template, request, url_for
 from flask_socketio import SocketIO
@@ -169,7 +170,25 @@ def certificate_request():
 @app.route('/key-management')
 def key_management():
     key_tree = server.list_key_tree()
+    print(key_tree)
     return render_template('key-management.html', key_tree=key_tree)
+
+
+@app.route('/ndnsec-delete')
+def ndnsec_delete():
+    name = request.args.get('name', None)
+    kind = request.args.get('type', 'n')
+    if name is not None:
+        ret = subprocess.getoutput('ndnsec-delete -{} "{}"'.format(kind, name))
+        return ret
+
+
+@app.route('/ndnsec-keygen')
+def ndnsec_keygen():
+    name = request.args.get('name', None)
+    if name is not None:
+        _ = subprocess.getoutput('ndnsec-keygen -n "{}"'.format(name))
+        return redirect(url_for('key_management'))
 
 
 if __name__ == '__main__':
