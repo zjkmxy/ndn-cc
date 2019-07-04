@@ -91,8 +91,9 @@ def face_list():
             return "NFD is not running"
         face_list = decode_list(msg.face_status)
         fields = list(face_list[0].keys())
-        return render_template('face-list.html', fields=fields, face_list=face_list, 
-                               **request.args.to_dict())
+        fields_collapse = [field for field in set(fields) - {'face_id', 'uri'}]
+        return render_template('face-list.html', face_list=face_list, 
+                               fields_collapse=fields_collapse, **request.args.to_dict())
     else:
         print("No response: face-list")
         return "NFD is not running"

@@ -10,15 +10,20 @@
   <table>
     <caption>Face Lists</caption>
     <tr>
-      {% for field in fields %}
-        <th>{{ field|e }}</th>
-      {% endfor %}
+      <th>face id</th>
+      <th>uri</th>
     </tr>
     {% for item in face_list %}
     <tr>
-      {% for field in fields %}
-        <td>{{ item[field]|e }}</td>
-      {% endfor %}
+      <td>{{ item['face_id']|e }}</td>
+      <td>
+        <details>
+          <summary>{{ item['uri']|e }}</summary>
+          {% for field in fields_collapse %}
+            {{ field + ": " + item[field]|e }}<br>
+          {% endfor %}
+        </details>
+      </td>
       <td>
         <form action="../exec/remove-face" method="post">
           <input type="hidden" name="face_id" value={{ item["face_id"] }}>
