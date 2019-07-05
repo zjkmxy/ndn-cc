@@ -1,10 +1,14 @@
 from typing import Set
+from functools import reduce
 from pyndn import Face, Interest, Data, Name
 from pyndn.security import KeyChain, Pib
 from pyndn.encoding import ProtobufTlv
 from .asyncndn import fetch_data_packet
-from .nfd_face_mgmt_pb2 import FaceEventNotificationMessage, ControlCommandMessage, ControlResponseMessage
+from .nfd_face_mgmt_pb2 import FaceEventNotificationMessage, ControlCommandMessage,\
+    ControlResponseMessage, FaceQueryFilterMessage, FaceStatusMessage
 import asyncio
+import urllib.request
+import socket
 
 
 class Server:
@@ -106,6 +110,9 @@ class Server:
             await asyncio.sleep(0.1)
 
     async def add_face(self, uri):
+        # It's not easy to distinguish udp4://127.0.0.1 and udp4://spurs.cs.ucla.edu
+        # if reduce(lambda a, b: a or b, (x.isalpha() for x in uri)):
+        #     uri = socket.gethostbyname(uri)
         if uri[-1] == "/":
             uri = uri[:-1]
         if uri.find("://") < 0:
@@ -264,3 +271,62 @@ class Server:
                 cur_id['keys'][key_name.toUri()] = cur_key
             ret[id_name.toUri()] = cur_id
         return ret
+
+    async def query_face_id(self, uri):
+        query_filter = FaceQueryFilterMessage()
+        query_filter.face_query_filter.uri = uri.encode('utf-8')
+        query_filter_msg = ProtobufTlv.encode(query_filter)
+        name = Name("/localhost/nfd/faces/query").append(Name.Component(query_filter_msg))
+        interest = Interest(name)
+        interest.mustBeFresh = True
+        interest.canBePrefix = True
+        ret = await fetch_data_packet(self.face, interest)
+        if not isinstance(ret, Data):
+            return None
+        msg = FaceStatusMessage()
+        try:
+            ProtobufTlv.decode(msg, ret.content)
+        except RuntimeError as exc:
+            print("Decoding Error", exc)
+            return None
+        if len(msg.face_status) <= 0:
+            return None
+        return msg.face_status[0].face_id
+
+    async def autoconf(self):
+        """
+        Automatically connect to ndn testbed.
+        Add route /ndn and /localhop/nfd.
+        """
+        uri = urllib.request.urlopen("http://ndn-fch.named-data.net/").read().decode('utf-8')
+        uri = socket.gethostbyname(uri)
+        uri = "udp4://" + uri + ":6363"
+
+        interest = self.make_command('faces', 'create', uri=uri)
+        ret = await fetch_data_packet(self.face, interest)
+        if not isinstance(ret, Data):
+            return False, "Create face failed"
+        response = ControlResponseMessage()
+        try:
+            ProtobufTlv.decode(response, ret.content)
+        except RuntimeError as exc:
+            print('Decode failed', exc)
+            return False, "Create face failed"
+
+        # # Ignore duplicated face
+        # if response.control_response.st_code not in {200, 409}:
+        #     return False, "Create face failed"
+
+        face_id = await self.query_face_id(uri)
+        if face_id is None:
+            return False, "Create face failed"
+
+        route = Name("/ndn")
+        interest = self.make_command('rib', 'register', name=route, face_id=face_id, origin=66, cost=100)
+        await fetch_data_packet(self.face, interest)
+
+        route = Name("/localhop/nfd")
+        interest = self.make_command('rib', 'register', name=route, face_id=face_id, origin=66, cost=100)
+        await fetch_data_packet(self.face, interest)
+
+        return True, "Auto-configuration finished"

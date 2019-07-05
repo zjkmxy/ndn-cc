@@ -6,6 +6,9 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/add-route.css') }}">
 </head>
 <body>
-
+<a href="exec/autoconf">Start</a><br>
+{% if msg %}
+  <p>{{ msg }}</p>
+{% endif %}
 </body>
 </html>

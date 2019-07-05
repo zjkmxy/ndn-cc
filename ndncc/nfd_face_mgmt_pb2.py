@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='ndn_message',
   syntax='proto2',
   serialized_options=None,
-  serialized_pb=_b('\n\x13nfd-face-mgmt.proto\x12\x0bndn_message\"\x19\n\x04Name\x12\x11\n\tcomponent\x18\x08 \x03(\x0c\"\xba\x02\n\x1c\x46\x61\x63\x65\x45ventNotificationMessage\x12\x61\n\x17\x66\x61\x63\x65_event_notification\x18\xc0\x01 \x02(\x0b\x32?.ndn_message.FaceEventNotificationMessage.FaceEventNotification\x1a\xb6\x01\n\x15\x46\x61\x63\x65\x45ventNotification\x12\x18\n\x0f\x66\x61\x63\x65_event_kind\x18\xc1\x01 \x02(\r\x12\x0f\n\x07\x66\x61\x63\x65_id\x18i \x02(\x04\x12\x0b\n\x03uri\x18r \x02(\x0c\x12\x12\n\tlocal_uri\x18\x81\x01 \x02(\x0c\x12\x13\n\nface_scope\x18\x84\x01 \x02(\r\x12\x19\n\x10\x66\x61\x63\x65_persistency\x18\x85\x01 \x02(\r\x12\x12\n\tlink_type\x18\x86\x01 \x02(\r\x12\r\n\x05\x66lags\x18l \x02(\x04\"\xa9\x03\n\x15\x43ontrolCommandMessage\x12P\n\x12\x63ontrol_parameters\x18h \x02(\x0b\x32\x34.ndn_message.ControlCommandMessage.ControlParameters\x1a\xbd\x02\n\x11\x43ontrolParameters\x12\x1f\n\x04name\x18\x07 \x01(\x0b\x32\x11.ndn_message.Name\x12\x0f\n\x07\x66\x61\x63\x65_id\x18i \x01(\x04\x12\x0b\n\x03uri\x18r \x01(\x0c\x12\x12\n\tlocal_uri\x18\x81\x01 \x01(\x0c\x12\x0e\n\x06origin\x18o \x01(\x04\x12\x0c\n\x04\x63ost\x18j \x01(\x04\x12\x11\n\x08\x63\x61pacity\x18\x83\x01 \x01(\x04\x12\x0e\n\x05\x63ount\x18\x84\x01 \x01(\x04\x12\x17\n\x0e\x62\x61se_cong_mark\x18\x87\x01 \x01(\x04\x12\x17\n\x0e\x64\x65\x66_cong_thres\x18\x88\x01 \x01(\x04\x12\x0c\n\x03mtu\x18\x89\x01 \x01(\x04\x12\r\n\x05\x66lags\x18l \x01(\x04\x12\x0c\n\x04mask\x18p \x01(\x04\x12#\n\x08strategy\x18k \x01(\x0b\x32\x11.ndn_message.Name\x12\x12\n\nexp_period\x18m \x01(\x04\"\x9c\x01\n\x16\x43ontrolResponseMessage\x12M\n\x10\x63ontrol_response\x18\x65 \x02(\x0b\x32\x33.ndn_message.ControlResponseMessage.ControlResponse\x1a\x33\n\x0f\x43ontrolResponse\x12\x0f\n\x07st_code\x18\x66 \x01(\x04\x12\x0f\n\x07st_text\x18g \x01(\x0c\"\xa4\x05\n\rGeneralStatus\x12\x14\n\x0bnfd_version\x18\x80\x01 \x01(\x0c\x12\x18\n\x0fstart_timestamp\x18\x81\x01 \x01(\x04\x12\x1a\n\x11\x63urrent_timestamp\x18\x82\x01 \x01(\x04\x12\x1c\n\x13n_name_tree_entries\x18\x83\x01 \x01(\x04\x12\x16\n\rn_fib_entries\x18\x84\x01 \x01(\x04\x12\x16\n\rn_pit_entries\x18\x85\x01 \x01(\x04\x12\x1e\n\x15n_measurement_entries\x18\x86\x01 \x01(\x04\x12\x15\n\x0cn_cs_entries\x18\x87\x01 \x01(\x04\x12\x17\n\x0en_in_interests\x18\x90\x01 \x01(\x04\x12\x12\n\tn_in_data\x18\x91\x01 \x01(\x04\x12\x13\n\nn_in_nacks\x18\x97\x01 \x01(\x04\x12\x18\n\x0fn_out_interests\x18\x92\x01 \x01(\x04\x12\x13\n\nn_out_data\x18\x93\x01 \x01(\x04\x12\x14\n\x0bn_out_nacks\x18\x98\x01 \x01(\x04\x12\x1e\n\x15n_satisfied_interests\x18\x99\x01 \x01(\x04\x12 \n\x17n_unsatisfied_interests\x18\x9a\x01 \x01(\x04\x12\x1f\n\x16n_fragmentation_errors\x18\xc8\x01 \x01(\x04\x12\x17\n\x0en_out_over_mtu\x18\xc9\x01 \x01(\x04\x12\x18\n\x0fn_in_lp_invalid\x18\xca\x01 \x01(\x04\x12\x1e\n\x15n_reassembly_timeouts\x18\xcb\x01 \x01(\x04\x12\x19\n\x10n_in_net_invalid\x18\xcc\x01 \x01(\x04\x12\x17\n\x0en_acknowledged\x18\xcd\x01 \x01(\x04\x12\x18\n\x0fn_retransmitted\x18\xce\x01 \x01(\x04\x12\x19\n\x10n_retx_exhausted\x18\xcf\x01 \x01(\x04\x12\x1c\n\x13n_congestion_marked\x18\xd0\x01 \x01(\x04\"\xee\x03\n\x11\x46\x61\x63\x65StatusMessage\x12?\n\x0b\x66\x61\x63\x65_status\x18\x80\x01 \x03(\x0b\x32).ndn_message.FaceStatusMessage.FaceStatus\x1a\x97\x03\n\nFaceStatus\x12\x0f\n\x07\x66\x61\x63\x65_id\x18i \x01(\x04\x12\x0b\n\x03uri\x18r \x01(\x0c\x12\x12\n\tlocal_uri\x18\x81\x01 \x01(\x0c\x12\x12\n\nexp_period\x18m \x01(\x04\x12\x13\n\nface_scope\x18\x84\x01 \x01(\x04\x12\x19\n\x10\x66\x61\x63\x65_persistency\x18\x85\x01 \x01(\x04\x12\x12\n\tlink_type\x18\x86\x01 \x01(\x04\x12\x17\n\x0e\x62\x61se_cong_mark\x18\x87\x01 \x01(\x04\x12\x17\n\x0e\x64\x65\x66_cong_thres\x18\x88\x01 \x01(\x04\x12\x0c\n\x03mtu\x18\x89\x01 \x01(\x04\x12\x17\n\x0en_in_interests\x18\x90\x01 \x01(\x04\x12\x12\n\tn_in_data\x18\x91\x01 \x01(\x04\x12\x13\n\nn_in_nacks\x18\x97\x01 \x01(\x04\x12\x18\n\x0fn_out_interests\x18\x92\x01 \x01(\x04\x12\x13\n\nn_out_data\x18\x93\x01 \x01(\x04\x12\x14\n\x0bn_out_nacks\x18\x98\x01 \x01(\x04\x12\x13\n\nn_in_bytes\x18\x94\x01 \x01(\x04\x12\x14\n\x0bn_out_bytes\x18\x95\x01 \x01(\x04\x12\r\n\x05\x66lags\x18l \x01(\x04\"\x95\x02\n\x10RibStatusMessage\x12:\n\trib_entry\x18\x80\x01 \x03(\x0b\x32&.ndn_message.RibStatusMessage.RibEntry\x1a\xc4\x01\n\x08RibEntry\x12\x1f\n\x04name\x18\x07 \x01(\x0b\x32\x11.ndn_message.Name\x12<\n\x05route\x18\x81\x01 \x03(\x0b\x32,.ndn_message.RibStatusMessage.RibEntry.Route\x1aY\n\x05Route\x12\x0f\n\x07\x66\x61\x63\x65_id\x18i \x01(\x04\x12\x0e\n\x06origin\x18o \x01(\x04\x12\x0c\n\x04\x63ost\x18j \x01(\x04\x12\r\n\x05\x66lags\x18l \x01(\x04\x12\x12\n\nexp_period\x18m \x01(\x04')
+  serialized_pb=_b('\n\x13nfd-face-mgmt.proto\x12\x0bndn_message\"\x19\n\x04Name\x12\x11\n\tcomponent\x18\x08 \x03(\x0c\"\xba\x02\n\x1c\x46\x61\x63\x65\x45ventNotificationMessage\x12\x61\n\x17\x66\x61\x63\x65_event_notification\x18\xc0\x01 \x02(\x0b\x32?.ndn_message.FaceEventNotificationMessage.FaceEventNotification\x1a\xb6\x01\n\x15\x46\x61\x63\x65\x45ventNotification\x12\x18\n\x0f\x66\x61\x63\x65_event_kind\x18\xc1\x01 \x02(\r\x12\x0f\n\x07\x66\x61\x63\x65_id\x18i \x02(\x04\x12\x0b\n\x03uri\x18r \x02(\x0c\x12\x12\n\tlocal_uri\x18\x81\x01 \x02(\x0c\x12\x13\n\nface_scope\x18\x84\x01 \x02(\r\x12\x19\n\x10\x66\x61\x63\x65_persistency\x18\x85\x01 \x02(\r\x12\x12\n\tlink_type\x18\x86\x01 \x02(\r\x12\r\n\x05\x66lags\x18l \x02(\x04\"\xa9\x03\n\x15\x43ontrolCommandMessage\x12P\n\x12\x63ontrol_parameters\x18h \x02(\x0b\x32\x34.ndn_message.ControlCommandMessage.ControlParameters\x1a\xbd\x02\n\x11\x43ontrolParameters\x12\x1f\n\x04name\x18\x07 \x01(\x0b\x32\x11.ndn_message.Name\x12\x0f\n\x07\x66\x61\x63\x65_id\x18i \x01(\x04\x12\x0b\n\x03uri\x18r \x01(\x0c\x12\x12\n\tlocal_uri\x18\x81\x01 \x01(\x0c\x12\x0e\n\x06origin\x18o \x01(\x04\x12\x0c\n\x04\x63ost\x18j \x01(\x04\x12\x11\n\x08\x63\x61pacity\x18\x83\x01 \x01(\x04\x12\x0e\n\x05\x63ount\x18\x84\x01 \x01(\x04\x12\x17\n\x0e\x62\x61se_cong_mark\x18\x87\x01 \x01(\x04\x12\x17\n\x0e\x64\x65\x66_cong_thres\x18\x88\x01 \x01(\x04\x12\x0c\n\x03mtu\x18\x89\x01 \x01(\x04\x12\r\n\x05\x66lags\x18l \x01(\x04\x12\x0c\n\x04mask\x18p \x01(\x04\x12#\n\x08strategy\x18k \x01(\x0b\x32\x11.ndn_message.Name\x12\x12\n\nexp_period\x18m \x01(\x04\"\x9c\x01\n\x16\x43ontrolResponseMessage\x12M\n\x10\x63ontrol_response\x18\x65 \x02(\x0b\x32\x33.ndn_message.ControlResponseMessage.ControlResponse\x1a\x33\n\x0f\x43ontrolResponse\x12\x0f\n\x07st_code\x18\x66 \x01(\x04\x12\x0f\n\x07st_text\x18g \x01(\x0c\"\xa4\x05\n\rGeneralStatus\x12\x14\n\x0bnfd_version\x18\x80\x01 \x01(\x0c\x12\x18\n\x0fstart_timestamp\x18\x81\x01 \x01(\x04\x12\x1a\n\x11\x63urrent_timestamp\x18\x82\x01 \x01(\x04\x12\x1c\n\x13n_name_tree_entries\x18\x83\x01 \x01(\x04\x12\x16\n\rn_fib_entries\x18\x84\x01 \x01(\x04\x12\x16\n\rn_pit_entries\x18\x85\x01 \x01(\x04\x12\x1e\n\x15n_measurement_entries\x18\x86\x01 \x01(\x04\x12\x15\n\x0cn_cs_entries\x18\x87\x01 \x01(\x04\x12\x17\n\x0en_in_interests\x18\x90\x01 \x01(\x04\x12\x12\n\tn_in_data\x18\x91\x01 \x01(\x04\x12\x13\n\nn_in_nacks\x18\x97\x01 \x01(\x04\x12\x18\n\x0fn_out_interests\x18\x92\x01 \x01(\x04\x12\x13\n\nn_out_data\x18\x93\x01 \x01(\x04\x12\x14\n\x0bn_out_nacks\x18\x98\x01 \x01(\x04\x12\x1e\n\x15n_satisfied_interests\x18\x99\x01 \x01(\x04\x12 \n\x17n_unsatisfied_interests\x18\x9a\x01 \x01(\x04\x12\x1f\n\x16n_fragmentation_errors\x18\xc8\x01 \x01(\x04\x12\x17\n\x0en_out_over_mtu\x18\xc9\x01 \x01(\x04\x12\x18\n\x0fn_in_lp_invalid\x18\xca\x01 \x01(\x04\x12\x1e\n\x15n_reassembly_timeouts\x18\xcb\x01 \x01(\x04\x12\x19\n\x10n_in_net_invalid\x18\xcc\x01 \x01(\x04\x12\x17\n\x0en_acknowledged\x18\xcd\x01 \x01(\x04\x12\x18\n\x0fn_retransmitted\x18\xce\x01 \x01(\x04\x12\x19\n\x10n_retx_exhausted\x18\xcf\x01 \x01(\x04\x12\x1c\n\x13n_congestion_marked\x18\xd0\x01 \x01(\x04\"\xee\x03\n\x11\x46\x61\x63\x65StatusMessage\x12?\n\x0b\x66\x61\x63\x65_status\x18\x80\x01 \x03(\x0b\x32).ndn_message.FaceStatusMessage.FaceStatus\x1a\x97\x03\n\nFaceStatus\x12\x0f\n\x07\x66\x61\x63\x65_id\x18i \x01(\x04\x12\x0b\n\x03uri\x18r \x01(\x0c\x12\x12\n\tlocal_uri\x18\x81\x01 \x01(\x0c\x12\x12\n\nexp_period\x18m \x01(\x04\x12\x13\n\nface_scope\x18\x84\x01 \x01(\x04\x12\x19\n\x10\x66\x61\x63\x65_persistency\x18\x85\x01 \x01(\x04\x12\x12\n\tlink_type\x18\x86\x01 \x01(\x04\x12\x17\n\x0e\x62\x61se_cong_mark\x18\x87\x01 \x01(\x04\x12\x17\n\x0e\x64\x65\x66_cong_thres\x18\x88\x01 \x01(\x04\x12\x0c\n\x03mtu\x18\x89\x01 \x01(\x04\x12\x17\n\x0en_in_interests\x18\x90\x01 \x01(\x04\x12\x12\n\tn_in_data\x18\x91\x01 \x01(\x04\x12\x13\n\nn_in_nacks\x18\x97\x01 \x01(\x04\x12\x18\n\x0fn_out_interests\x18\x92\x01 \x01(\x04\x12\x13\n\nn_out_data\x18\x93\x01 \x01(\x04\x12\x14\n\x0bn_out_nacks\x18\x98\x01 \x01(\x04\x12\x13\n\nn_in_bytes\x18\x94\x01 \x01(\x04\x12\x14\n\x0bn_out_bytes\x18\x95\x01 \x01(\x04\x12\r\n\x05\x66lags\x18l \x01(\x04\"\x95\x02\n\x10RibStatusMessage\x12:\n\trib_entry\x18\x80\x01 \x03(\x0b\x32&.ndn_message.RibStatusMessage.RibEntry\x1a\xc4\x01\n\x08RibEntry\x12\x1f\n\x04name\x18\x07 \x01(\x0b\x32\x11.ndn_message.Name\x12<\n\x05route\x18\x81\x01 \x03(\x0b\x32,.ndn_message.RibStatusMessage.RibEntry.Route\x1aY\n\x05Route\x12\x0f\n\x07\x66\x61\x63\x65_id\x18i \x01(\x04\x12\x0e\n\x06origin\x18o \x01(\x04\x12\x0c\n\x04\x63ost\x18j \x01(\x04\x12\r\n\x05\x66lags\x18l \x01(\x04\x12\x12\n\nexp_period\x18m \x01(\x04\"\x88\x02\n\x16\x46\x61\x63\x65QueryFilterMessage\x12O\n\x11\x66\x61\x63\x65_query_filter\x18\x96\x01 \x02(\x0b\x32\x33.ndn_message.FaceQueryFilterMessage.FaceQueryFilter\x1a\x9c\x01\n\x0f\x46\x61\x63\x65QueryFilter\x12\x0f\n\x07\x66\x61\x63\x65_id\x18i \x01(\x04\x12\x13\n\nuri_scheme\x18\x83\x01 \x01(\x0c\x12\x0b\n\x03uri\x18r \x01(\x0c\x12\x12\n\tlocal_uri\x18\x81\x01 \x01(\x0c\x12\x13\n\nface_scope\x18\x84\x01 \x01(\x04\x12\x19\n\x10\x66\x61\x63\x65_persistency\x18\x85\x01 \x01(\x04\x12\x12\n\tlink_type\x18\x86\x01 \x01(\r')
 )
 
 
@@ -905,6 +905,109 @@ _RIBSTATUSMESSAGE = _descriptor.Descriptor(
   serialized_end=2421,
 )
 
+
+_FACEQUERYFILTERMESSAGE_FACEQUERYFILTER = _descriptor.Descriptor(
+  name='FaceQueryFilter',
+  full_name='ndn_message.FaceQueryFilterMessage.FaceQueryFilter',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='face_id', full_name='ndn_message.FaceQueryFilterMessage.FaceQueryFilter.face_id', index=0,
+      number=105, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='uri_scheme', full_name='ndn_message.FaceQueryFilterMessage.FaceQueryFilter.uri_scheme', index=1,
+      number=131, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(""),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='uri', full_name='ndn_message.FaceQueryFilterMessage.FaceQueryFilter.uri', index=2,
+      number=114, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(""),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='local_uri', full_name='ndn_message.FaceQueryFilterMessage.FaceQueryFilter.local_uri', index=3,
+      number=129, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(""),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='face_scope', full_name='ndn_message.FaceQueryFilterMessage.FaceQueryFilter.face_scope', index=4,
+      number=132, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='face_persistency', full_name='ndn_message.FaceQueryFilterMessage.FaceQueryFilter.face_persistency', index=5,
+      number=133, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='link_type', full_name='ndn_message.FaceQueryFilterMessage.FaceQueryFilter.link_type', index=6,
+      number=134, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=2532,
+  serialized_end=2688,
+)
+
+_FACEQUERYFILTERMESSAGE = _descriptor.Descriptor(
+  name='FaceQueryFilterMessage',
+  full_name='ndn_message.FaceQueryFilterMessage',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='face_query_filter', full_name='ndn_message.FaceQueryFilterMessage.face_query_filter', index=0,
+      number=150, type=11, cpp_type=10, label=2,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[_FACEQUERYFILTERMESSAGE_FACEQUERYFILTER, ],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=2424,
+  serialized_end=2688,
+)
+
 _FACEEVENTNOTIFICATIONMESSAGE_FACEEVENTNOTIFICATION.containing_type = _FACEEVENTNOTIFICATIONMESSAGE
 _FACEEVENTNOTIFICATIONMESSAGE.fields_by_name['face_event_notification'].message_type = _FACEEVENTNOTIFICATIONMESSAGE_FACEEVENTNOTIFICATION
 _CONTROLCOMMANDMESSAGE_CONTROLPARAMETERS.fields_by_name['name'].message_type = _NAME
@@ -920,6 +1023,8 @@ _RIBSTATUSMESSAGE_RIBENTRY.fields_by_name['name'].message_type = _NAME
 _RIBSTATUSMESSAGE_RIBENTRY.fields_by_name['route'].message_type = _RIBSTATUSMESSAGE_RIBENTRY_ROUTE
 _RIBSTATUSMESSAGE_RIBENTRY.containing_type = _RIBSTATUSMESSAGE
 _RIBSTATUSMESSAGE.fields_by_name['rib_entry'].message_type = _RIBSTATUSMESSAGE_RIBENTRY
+_FACEQUERYFILTERMESSAGE_FACEQUERYFILTER.containing_type = _FACEQUERYFILTERMESSAGE
+_FACEQUERYFILTERMESSAGE.fields_by_name['face_query_filter'].message_type = _FACEQUERYFILTERMESSAGE_FACEQUERYFILTER
 DESCRIPTOR.message_types_by_name['Name'] = _NAME
 DESCRIPTOR.message_types_by_name['FaceEventNotificationMessage'] = _FACEEVENTNOTIFICATIONMESSAGE
 DESCRIPTOR.message_types_by_name['ControlCommandMessage'] = _CONTROLCOMMANDMESSAGE
@@ -927,6 +1032,7 @@ DESCRIPTOR.message_types_by_name['ControlResponseMessage'] = _CONTROLRESPONSEMES
 DESCRIPTOR.message_types_by_name['GeneralStatus'] = _GENERALSTATUS
 DESCRIPTOR.message_types_by_name['FaceStatusMessage'] = _FACESTATUSMESSAGE
 DESCRIPTOR.message_types_by_name['RibStatusMessage'] = _RIBSTATUSMESSAGE
+DESCRIPTOR.message_types_by_name['FaceQueryFilterMessage'] = _FACEQUERYFILTERMESSAGE
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 Name = _reflection.GeneratedProtocolMessageType('Name', (_message.Message,), dict(
@@ -1025,6 +1131,21 @@ RibStatusMessage = _reflection.GeneratedProtocolMessageType('RibStatusMessage', 
 _sym_db.RegisterMessage(RibStatusMessage)
 _sym_db.RegisterMessage(RibStatusMessage.RibEntry)
 _sym_db.RegisterMessage(RibStatusMessage.RibEntry.Route)
+
+FaceQueryFilterMessage = _reflection.GeneratedProtocolMessageType('FaceQueryFilterMessage', (_message.Message,), dict(
+
+  FaceQueryFilter = _reflection.GeneratedProtocolMessageType('FaceQueryFilter', (_message.Message,), dict(
+    DESCRIPTOR = _FACEQUERYFILTERMESSAGE_FACEQUERYFILTER,
+    __module__ = 'nfd_face_mgmt_pb2'
+    # @@protoc_insertion_point(class_scope:ndn_message.FaceQueryFilterMessage.FaceQueryFilter)
+    ))
+  ,
+  DESCRIPTOR = _FACEQUERYFILTERMESSAGE,
+  __module__ = 'nfd_face_mgmt_pb2'
+  # @@protoc_insertion_point(class_scope:ndn_message.FaceQueryFilterMessage)
+  ))
+_sym_db.RegisterMessage(FaceQueryFilterMessage)
+_sym_db.RegisterMessage(FaceQueryFilterMessage.FaceQueryFilter)
 
 
 # @@protoc_insertion_point(module_scope)

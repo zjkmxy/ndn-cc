@@ -162,6 +162,12 @@ def auto_configuration():
     return render_template('auto-configuration.html')
 
 
+@app.route('/exec/autoconf')
+def exec_autoconf():
+    ret, msg = run_until_complete(server.autoconf())
+    return render_template('auto-configuration.html', msg=msg)
+
+
 @app.route('/certificate-request')
 def certificate_request():
     return render_template('certificate-request.html')
