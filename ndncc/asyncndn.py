@@ -2,6 +2,7 @@ import asyncio
 import threading
 from typing import Union, Dict, List
 from pyndn import Face, Interest, NetworkNack, Data, Name
+from pyndn.meta_info import ContentType
 
 
 async def fetch_data_packet(face: Face, interest: Interest) -> Union[Data, NetworkNack, None]:
@@ -71,3 +72,19 @@ def decode_name(name) -> str:
     for comp in name.component:
         ret.append(comp.decode('utf-8'))
     return ret.toUri()
+
+
+def decode_content_type(content_type) -> str:
+    codeset = ["BLOB", "LINK", "KEY", "NACK"]
+    if content_type <= 3:
+        return codeset[content_type]
+    else:
+        return str(content_type)
+
+
+def decode_nack_reason(reason) -> str:
+    codeset = {0: 'NONE', 50: 'CONGESTION', 100: 'DUPLICATE', 150: 'NO_ROUTE'}
+    if reason in codeset:
+        return codeset[reason]
+    else:
+        return str(reason)

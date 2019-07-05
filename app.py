@@ -1,11 +1,13 @@
 import threading
 import asyncio
 import subprocess
+import time
 from ndncc.server import Server
 from flask import Flask, redirect, render_template, request, url_for
 from flask_socketio import SocketIO
-from ndncc.asyncndn import fetch_data_packet, decode_dict, decode_list, decode_name
-from pyndn import Interest, Data
+from ndncc.asyncndn import fetch_data_packet, decode_dict, decode_list, decode_name, \
+    decode_content_type, decode_nack_reason
+from pyndn import Interest, Data, NetworkNack
 from ndncc.nfd_face_mgmt_pb2 import GeneralStatus, FaceStatusMessage, RibStatusMessage
 from pyndn.encoding import ProtobufTlv
 
@@ -108,7 +110,13 @@ def face_events():
 @app.route('/exec/add-route', methods=['POST'])
 def exec_addroute():
     name = request.form['name']
-    face_id = int(request.form['face_id'])
+    try:
+        face_id = int(request.form['face_id'])
+    except ValueError:
+        return redirect(url_for('route_list',
+                                st_code='-1',
+                                st_text='Invalid number {}'.format(request.form['face_id'])))
+
     ret = run_until_complete(server.add_route(name, face_id))
     if ret is None:
         print("No response")
@@ -195,6 +203,60 @@ def ndnsec_keygen():
     if name is not None:
         _ = subprocess.getoutput('ndnsec-keygen -n "{}"'.format(name))
         return redirect(url_for('key_management'))
+
+
+@app.route('/ndn-ping')
+def ndn_ping():
+    return render_template('ndn-ping.html')
+
+
+@app.route('/exec/ndn-ping', methods=['POST'])
+def exec_ndn_ping():
+    name = request.form['name']
+    can_be_prefix = request.form['can_be_prefix'] == 'true'
+    must_be_fresh = request.form['must_be_fresh'] == 'true'
+    try:
+        interest_lifetime = float(request.form['interest_lifetime']) * 1000.0
+    except ValueError:
+        interest_lifetime = 4000.0
+
+    interest = Interest(name)
+    interest.canBePrefix = can_be_prefix
+    interest.mustBeFresh = must_be_fresh
+    interest.interestLifetimeMilliseconds = interest_lifetime
+    st_time = time.time()
+    ret = run_until_complete(fetch_data_packet(server.face, interest))
+    ed_time = time.time()
+    response_time = '{:.3f}s'.format(ed_time - st_time)
+    if isinstance(ret, Data):
+        response_type = 'Data'
+        name = ret.name.toUri()
+        content_type = decode_content_type(ret.metaInfo.type)
+        freshness_period = "{:.3f}s".format(ret.metaInfo.freshnessPeriod / 1000.0)
+        final_block_id = ret.metaInfo.finalBlockId.toEscapedString()
+        signature_type = type(ret.signature).__name__
+        return render_template('ndn-ping.html',
+                               response_time=response_time,
+                               response_type=response_type,
+                               name=name,
+                               content_type=content_type,
+                               freshness_period=freshness_period,
+                               final_block_id=final_block_id,
+                               signature_type=signature_type)
+    elif isinstance(ret, NetworkNack):
+        response_type = 'NetworkNack'
+        reason = decode_nack_reason(ret.getReason())
+        return render_template('ndn-ping.html',
+                               response_time=response_time,
+                               response_type=response_type,
+                               name=name,
+                               reason=reason)
+    else:
+        response_type = 'Timeout'
+        return render_template('ndn-ping.html',
+                               response_time=response_time,
+                               response_type=response_type,
+                               name=name)
 
 
 if __name__ == '__main__':
