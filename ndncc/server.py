@@ -15,6 +15,7 @@ class Server:
     def __init__(self, emit_func):
         self.emit = emit_func
         self.running = True
+        self.event_list = []
 
         self.face = Face()
         self.keychain = KeyChain()
@@ -99,7 +100,9 @@ class Server:
                     ProtobufTlv.decode(face_event, ret.content)
 
                     dic = self.face_event_to_dict(face_event.face_event_notification)
+                    dic['seq'] = str(last_seq)
                     self.emit('face event', dic)
+                    self.event_list.append(dic)
                 except RuntimeError as exc:
                     print('Decode failed', exc)
                     last_seq = -1

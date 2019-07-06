@@ -2,6 +2,7 @@ import threading
 import asyncio
 import subprocess
 import time
+from datetime import datetime
 from ndncc.server import Server
 from flask import Flask, redirect, render_template, request, url_for
 from flask_socketio import SocketIO
@@ -11,7 +12,7 @@ from pyndn import Interest, Data, NetworkNack
 from ndncc.nfd_face_mgmt_pb2 import GeneralStatus, FaceStatusMessage, RibStatusMessage
 from pyndn.encoding import ProtobufTlv
 
-# Serve static content from /assets
+# Serve static content from /static
 app = Flask(__name__,
             static_url_path='/static',
             static_folder='static')
@@ -38,6 +39,10 @@ def index():
 
 @app.route('/general-status')
 def general_status():
+    def convert_time(timestamp):
+        ret = datetime.fromtimestamp(float(timestamp) / 1000.0)
+        return str(ret)
+
     interest = Interest("/localhost/nfd/status/general")
     interest.mustBeFresh = True
     interest.canBePrefix = True
@@ -51,6 +56,8 @@ def general_status():
             print("Decoding Error", exc)
             return "NFD is not running"
         status = decode_dict(msg)
+        status['start_timestamp'] = convert_time(status['start_timestamp'])
+        status['current_timestamp'] = convert_time(status['current_timestamp'])
         return render_template('general-status.html', name=name, status=status)
     else:
         print("No response")
@@ -103,7 +110,7 @@ def face_list():
 
 @app.route('/face-events')
 def face_events():
-    return render_template('face-events.html')
+    return render_template('face-events.html', event_list=server.event_list)
 
 
 ### Route
