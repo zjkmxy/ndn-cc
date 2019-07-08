@@ -1,8 +1,10 @@
 from typing import Set
 from functools import reduce
+import threading
 from pyndn import Face, Interest, Data, Name
 from pyndn.security import KeyChain, Pib
 from pyndn.encoding import ProtobufTlv
+from pyndn.transport.unix_transport import UnixTransport
 from .asyncndn import fetch_data_packet
 from .nfd_face_mgmt_pb2 import FaceEventNotificationMessage, ControlCommandMessage,\
     ControlResponseMessage, FaceQueryFilterMessage, FaceStatusMessage
@@ -17,16 +19,59 @@ class Server:
         self.running = True
         self.event_list = []
 
-        self.face = Face()
+        # 1. If you use default constructor, when NFD is not started,
+        # TcpTransport will be used instead of UnixTransport.
+        # 2. Both TcpTransport and UnixTransport are not connected
+        # before the first Interest is sent.
+        # file_path = Face._getUnixSocketFilePathForLocalhost()
+        # transport = UnixTransport()
+        # connection_info = UnixTransport.ConnectionInfo(file_path)
+        # self.face = Face(transport, connection_info)
+
         self.keychain = KeyChain()
-        self.face.setCommandSigningInfo(self.keychain, self.keychain.getDefaultCertificateName())
+        self.face = None
+
+    def start_reconnection(self):
+        """
+        Start reconnection process.
+        NOT thread safe.
+        """
+        self.face.shutdown()
+        self.face = None
+
+    def connection_test(self):
+        interest = Interest("/localhost/nfd/faces/events")
+        interest.mustBeFresh = True
+        interest.canBePrefix = True
+        interest.interestLifetimeMilliseconds = 1000
+        try:
+            def empty(*_args, **_kwargs):
+                pass
+
+            self.face.expressInterest(interest, empty, empty, empty)
+            return True
+        except (ConnectionRefusedError, BrokenPipeError, OSError):
+            return False
 
     async def run(self):
-        face_event = asyncio.get_event_loop().create_task(self.face_event())
         while self.running:
-            self.face.processEvents()
-            await asyncio.sleep(0.01)
-        await face_event
+            print("Restarting face...")
+            self.face = Face()
+            self.face.setCommandSigningInfo(self.keychain, self.keychain.getDefaultCertificateName())
+            if self.connection_test():
+                print("Succeeded")
+                face_event = asyncio.get_event_loop().create_task(self.face_event())
+                while self.running and self.face is not None:
+                    try:
+                        self.face.processEvents()
+                    except AttributeError:
+                        print("Attribute error.")
+                        self.start_reconnection()
+                    await asyncio.sleep(0.01)
+                await face_event
+            else:
+                print("Failed")
+            await asyncio.sleep(3)
 
     @staticmethod
     def face_event_to_dict(msg):
@@ -79,7 +124,10 @@ class Server:
 
     async def face_event(self):
         last_seq = -1
-        while self.running:
+        retry_time = 3000
+        retry_count_limit = 60000 // retry_time
+        retry_count = 0
+        while self.running and self.face:
             name = Name("/localhost/nfd/faces/events")
             face_interest = Interest()
             if last_seq >= 0:
@@ -90,10 +138,13 @@ class Server:
                 face_interest.canBePrefix = True
             print(name.toUri())
             face_interest.name = name
-            face_interest.interestLifetimeMilliseconds = 60000
+            # face_interest.interestLifetimeMilliseconds = 60000
+            face_interest.interestLifetimeMilliseconds = retry_time
 
             ret = await fetch_data_packet(self.face, face_interest)
+
             if isinstance(ret, Data):
+                retry_count = 0
                 last_seq = ret.name[-1].toSequenceNumber()
                 face_event = FaceEventNotificationMessage()
                 try:
@@ -106,9 +157,17 @@ class Server:
                 except RuntimeError as exc:
                     print('Decode failed', exc)
                     last_seq = -1
+            elif ret is None:
+                if retry_count >= retry_count_limit:
+                    print("No response")
+                    last_seq = -1
+                    retry_count = 0
+                else:
+                    retry_count += 1
             else:
-                print("No response")
-                last_seq = -1
+                print("NFD is not running")
+                self.face.start_reconnection()
+                return
 
             await asyncio.sleep(0.1)
 
@@ -190,6 +249,28 @@ class Server:
             work_loop.run_until_complete(self.run())
         finally:
             work_loop.close()
+
+    @staticmethod
+    def start_server(emit_func):
+        done = threading.Event()
+        server = None
+
+        def create_and_run():
+            nonlocal server, done
+            server = Server(emit_func)
+            work_loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(work_loop)
+            done.set()
+            try:
+                work_loop.run_until_complete(server.run())
+            finally:
+                work_loop.close()
+
+        thread = threading.Thread(target=create_and_run)
+        thread.setDaemon(True)
+        thread.start()
+        done.wait()
+        return server
 
     def make_command(self, module, verb, **kwargs):
         name = Name('/localhost/nfd').append(module).append(verb)

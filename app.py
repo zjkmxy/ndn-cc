@@ -19,12 +19,7 @@ app = Flask(__name__,
 
 app.config['SECRET_KEY'] = '3mlf4j8um6mg2-qlhyzk4ngxxk$8t4hh&$r)%968koxd3i(j#f'
 socketio = SocketIO(app)
-
-work_loop = asyncio.new_event_loop()
-server = Server(socketio.emit)
-thread = threading.Thread(target=server.run_server, args=(work_loop,))
-thread.setDaemon(True)
-thread.start()
+server = Server.start_server(socketio.emit)
 
 
 def run_until_complete(event):
@@ -54,7 +49,7 @@ def general_status():
             ProtobufTlv.decode(msg, ret.content)
         except RuntimeError as exc:
             print("Decoding Error", exc)
-            return "NFD is not running"
+            return "Decoding Error"
         status = decode_dict(msg)
         status['start_timestamp'] = convert_time(status['start_timestamp'])
         status['current_timestamp'] = convert_time(status['current_timestamp'])
@@ -67,6 +62,9 @@ def general_status():
 ### Face
 @app.route('/exec/add-face', methods=['POST'])
 def exec_addface():
+    if not server.connection_test():
+        return "NFD is not running"
+
     uri = request.form['ip']
     ret = run_until_complete(server.add_face(uri))
     if ret is None:
@@ -77,6 +75,9 @@ def exec_addface():
 
 @app.route('/exec/remove-face', methods=['POST'])
 def exec_removeface():
+    if not server.connection_test():
+        return "NFD is not running"
+
     face_id = int(request.form['face_id'])
     ret = run_until_complete(server.remove_face(face_id))
     if ret is None:
@@ -98,7 +99,7 @@ def face_list():
             ProtobufTlv.decode(msg, ret.content)
         except RuntimeError as exc:
             print("Decoding Error", exc)
-            return "NFD is not running"
+            return "Decoding Error"
         face_list = decode_list(msg.face_status)
         fields = list(face_list[0].keys())
         fields_collapse = [field for field in set(fields) - {'face_id', 'uri'}]
@@ -116,6 +117,9 @@ def face_events():
 ### Route
 @app.route('/exec/add-route', methods=['POST'])
 def exec_addroute():
+    if not server.connection_test():
+        return "NFD is not running"
+
     name = request.form['name']
     try:
         face_id = int(request.form['face_id'])
@@ -133,6 +137,9 @@ def exec_addroute():
 
 @app.route('/exec/remove-route', methods=['POST'])
 def exec_removeroute():
+    if not server.connection_test():
+        return "NFD is not running"
+
     name = request.form['name']
     face_id = int(request.form['face_id'])
     ret = run_until_complete(server.remove_route(name, face_id))
@@ -163,7 +170,7 @@ def route_list():
             ProtobufTlv.decode(msg, ret.content)
         except RuntimeError as exc:
             print("Decoding Error", exc)
-            return "NFD is not running"
+            return "Decoding Error"
         rib_list = decode_route_list(msg.rib_entry)
         return render_template('route-list.html', rib_list=rib_list, **request.args.to_dict())
     else:
@@ -179,6 +186,9 @@ def auto_configuration():
 
 @app.route('/exec/autoconf')
 def exec_autoconf():
+    if not server.connection_test():
+        return "NFD is not running"
+
     ret, msg = run_until_complete(server.autoconf())
     return render_template('auto-configuration.html', msg=msg)
 
@@ -258,12 +268,34 @@ def exec_ndn_ping():
                                response_type=response_type,
                                name=name,
                                reason=reason)
-    else:
+    elif ret is None:
         response_type = 'Timeout'
         return render_template('ndn-ping.html',
                                response_time=response_time,
                                response_type=response_type,
                                name=name)
+    else:
+        print("No response: ndn-ping")
+        return "NFD is not running"
+
+
+# NFD Management
+@app.route('/nfd-management')
+def nfd_management():
+    nfd_state = server.connection_test()
+    return render_template('nfd-management.html', nfd_state=nfd_state)
+
+
+@app.route('/exec/start-nfd')
+def start_nfd():
+    subprocess.run('nfd-start')
+    return redirect('/nfd-management')
+
+
+@app.route('/exec/stop-nfd')
+def stop_nfd():
+    subprocess.run('nfd-stop')
+    return redirect('/nfd-management')
 
 
 if __name__ == '__main__':

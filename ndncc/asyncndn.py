@@ -29,9 +29,12 @@ async def fetch_data_packet(face: Face, interest: Interest) -> Union[Data, Netwo
             ret = done.wait(0.01)
             await asyncio.sleep(0.01)
 
-    face.expressInterest(interest, on_data, on_timeout, on_network_nack)
-    await wait_for_event()
-    return result
+    try:
+        face.expressInterest(interest, on_data, on_timeout, on_network_nack)
+        await wait_for_event()
+        return result
+    except (ConnectionRefusedError, BrokenPipeError) as error:
+        return error
 
 
 def decode_dict(msg) -> Dict[str, str]:

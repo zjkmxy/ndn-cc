@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>NFD Management</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/add-route.css') }}">
+</head>
+<body>
+{% if nfd_state %}
+  <font color="green">NFD is running.</font>
+{% else %}
+  <font color="red">NFD is not running.</font>
+{% endif %}
+<br>
+<a href="exec/start-nfd">Start NFD</a><br>
+<a href="exec/stop-nfd">Stop NFD</a><br>
+</body>
+</html>
