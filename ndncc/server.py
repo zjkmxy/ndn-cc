@@ -5,6 +5,8 @@ from pyndn import Face, Interest, Data, Name
 from pyndn.security import KeyChain, Pib
 from pyndn.encoding import ProtobufTlv
 from pyndn.transport.unix_transport import UnixTransport
+from pyndn.security.pib.pib_key import PibKey
+from pyndn.security.v2.certificate_v2 import CertificateV2
 from .asyncndn import fetch_data_packet
 from .nfd_face_mgmt_pb2 import FaceEventNotificationMessage, ControlCommandMessage,\
     ControlResponseMessage, FaceQueryFilterMessage, FaceStatusMessage
@@ -334,6 +336,33 @@ class Server:
                 cur_id['keys'][key_name.toUri()] = cur_key
             ret[id_name.toUri()] = cur_id
         return ret
+
+    @staticmethod
+    def create_identity(name):
+        key_chain = KeyChain()
+        try:
+            cur_id = key_chain.getPib().getIdentity(Name(name))
+            key_chain.createKey(cur_id)
+        except Pib.Error:
+            key_chain.createIdentityV2(Name(name))
+
+    @staticmethod
+    def delete_security_object(name, kind):
+        key_chain = KeyChain()
+        print(name, kind)
+        if kind == "c":
+            id_name = CertificateV2.extractIdentityFromCertName(Name(name))
+            key_name = CertificateV2.extractKeyNameFromCertName(Name(name))
+            cur_id = key_chain.getPib().getIdentity(id_name)
+            cur_key = cur_id.getKey(key_name)
+            key_chain.deleteCertificate(cur_key, Name(name))
+        elif kind == "k":
+            id_name = PibKey.extractIdentityFromKeyName(Name(name))
+            cur_id = key_chain.getPib().getIdentity(id_name)
+            cur_key = cur_id.getKey(Name(name))
+            key_chain.deleteKey(cur_id, cur_key)
+        else:
+            key_chain.deleteIdentity(Name(name))
 
     async def query_face_id(self, uri):
         query_filter = FaceQueryFilterMessage()

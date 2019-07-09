@@ -261,7 +261,6 @@ def certificate_request():
 @app.route('/key-management')
 def key_management():
     key_tree = server.list_key_tree()
-    print(key_tree)
     return render_template('key-management.html', key_tree=key_tree)
 
 
@@ -270,15 +269,17 @@ def ndnsec_delete():
     name = request.args.get('name', None)
     kind = request.args.get('type', 'n')
     if name is not None:
-        ret = subprocess.getoutput('ndnsec-delete -{} "{}"'.format(kind, name))
-        return ret
+        server.delete_security_object(name, kind)
+        time.sleep(0.1)
+        return redirect(url_for('key_management'))
 
 
 @app.route('/ndnsec-keygen')
 def ndnsec_keygen():
     name = request.args.get('name', None)
     if name is not None:
-        _ = subprocess.getoutput('ndnsec-keygen -n "{}"'.format(name))
+        server.create_identity(name)
+        time.sleep(0.1)
         return redirect(url_for('key_management'))
 
 
