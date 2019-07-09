@@ -171,6 +171,20 @@ class Server:
 
             await asyncio.sleep(0.1)
 
+    async def issue_command_interest(self, interest):
+        ret = await fetch_data_packet(self.face, interest)
+        if isinstance(ret, Data):
+            response = ControlResponseMessage()
+            try:
+                ProtobufTlv.decode(response, ret.content)
+
+                dic = self.response_to_dict(response.control_response)
+                print(dic)
+                return dic
+            except RuntimeError as exc:
+                print('Decode failed', exc)
+        return None
+
     async def add_face(self, uri):
         # It's not easy to distinguish udp4://127.0.0.1 and udp4://spurs.cs.ucla.edu
         # if reduce(lambda a, b: a or b, (x.isalpha() for x in uri)):
@@ -183,65 +197,30 @@ class Server:
             uri = uri + ":6363"
 
         interest = self.make_command('faces', 'create', uri=uri)
-        ret = await fetch_data_packet(self.face, interest)
-        if isinstance(ret, Data):
-            response = ControlResponseMessage()
-            try:
-                ProtobufTlv.decode(response, ret.content)
-
-                dic = self.response_to_dict(response.control_response)
-                print(dic)
-                return dic
-            except RuntimeError as exc:
-                print('Decode failed', exc)
-        return None
+        return await self.issue_command_interest(interest)
     
     async def remove_face(self, face_id: int):
         interest = self.make_command('faces', 'destroy', face_id=face_id)
-        ret = await fetch_data_packet(self.face, interest)
-        if isinstance(ret, Data):
-            response = ControlResponseMessage()
-            try:
-                ProtobufTlv.decode(response, ret.content)
-
-                dic = self.response_to_dict(response.control_response)
-                print(dic)
-                return dic
-            except RuntimeError as exc:
-                print('Decode failed', exc)
-        return None
+        return await self.issue_command_interest(interest)
 
     async def add_route(self, name: str, face_id: int):
         interest = self.make_command('rib', 'register',
                                      name=Name(name), face_id=face_id)
-        ret = await fetch_data_packet(self.face, interest)
-        if isinstance(ret, Data):
-            response = ControlResponseMessage()
-            try:
-                ProtobufTlv.decode(response, ret.content)
-
-                dic = self.response_to_dict(response.control_response)
-                print(dic)
-                return dic
-            except RuntimeError as exc:
-                print('Decode failed', exc)
-        return None
+        return await self.issue_command_interest(interest)
 
     async def remove_route(self, name: str, face_id: int):
         interest = self.make_command('rib', 'unregister', 
                                      name=Name(name), face_id=face_id)
-        ret = await fetch_data_packet(self.face, interest)
-        if isinstance(ret, Data):
-            response = ControlResponseMessage()
-            try:
-                ProtobufTlv.decode(response, ret.content)
+        return await self.issue_command_interest(interest)
 
-                dic = self.response_to_dict(response.control_response)
-                print(dic)
-                return dic
-            except RuntimeError as exc:
-                print('Decode failed', exc)
-        return None
+    async def set_strategy(self, name: str, strategy: str):
+        interest = self.make_command('strategy-choice', 'set',
+                                     name=Name(name), strategy=Name(strategy))
+        return await self.issue_command_interest(interest)
+
+    async def unset_strategy(self, name: str):
+        interest = self.make_command('strategy-choice', 'unset', name=Name(name))
+        return await self.issue_command_interest(interest)
 
     def run_server(self, work_loop):
         asyncio.set_event_loop(work_loop)
@@ -284,7 +263,7 @@ class Server:
         if 'strategy' in kwargs:
             name_param = kwargs['strategy']
             for compo in name_param:
-                cmd_param.control_parameters.strategy.component.append(compo.getValue().toBytes())
+                cmd_param.control_parameters.strategy.name.component.append(compo.getValue().toBytes())
         for key in ['uri', 'local_uri']:
             if key in kwargs:
                 setattr(cmd_param.control_parameters, key, kwargs[key].encode('utf-8'))

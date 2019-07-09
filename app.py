@@ -9,7 +9,8 @@ from flask_socketio import SocketIO
 from ndncc.asyncndn import fetch_data_packet, decode_dict, decode_list, decode_name, \
     decode_content_type, decode_nack_reason
 from pyndn import Interest, Data, NetworkNack
-from ndncc.nfd_face_mgmt_pb2 import GeneralStatus, FaceStatusMessage, RibStatusMessage
+from ndncc.nfd_face_mgmt_pb2 import GeneralStatus, FaceStatusMessage, RibStatusMessage, \
+    StrategyChoiceMessage
 from pyndn.encoding import ProtobufTlv
 
 # Serve static content from /static
@@ -176,6 +177,65 @@ def route_list():
     else:
         print("No response: route-list")
         return "NFD is not running"
+
+
+# Strategy
+@app.route('/strategy-list')
+def strategy_list():
+    def decode_strategy(msg):
+        return [{
+            "name": decode_name(item.name),
+            "strategy": decode_name(item.strategy.name),
+        } for item in msg]
+
+    interest = Interest("/localhost/nfd/strategy-choice/list")
+    interest.mustBeFresh = True
+    interest.canBePrefix = True
+    ret = run_until_complete(fetch_data_packet(server.face, interest))
+    if isinstance(ret, Data):
+        msg = StrategyChoiceMessage()
+        try:
+            ProtobufTlv.decode(msg, ret.content)
+        except RuntimeError as exc:
+            print("Decoding Error", exc)
+            return "Decoding Error"
+        strategy_list = decode_strategy(msg.strategy_choice)
+        return render_template('strategy-list.html', strategy_list=strategy_list,
+                               **request.args.to_dict())
+    else:
+        print("No response: strategy-list")
+        return "NFD is not running"
+
+
+@app.route('/exec/set-strategy', methods=['POST'])
+def exec_set_strategy():
+    if not server.connection_test():
+        return "NFD is not running"
+
+    name = request.form['name']
+    strategy = request.form['strategy']
+    ret = run_until_complete(server.set_strategy(name, strategy))
+    if ret is None:
+        print("No response")
+        return redirect(url_for('strategy_list', st_code='-1', st_text='No response'))
+    else:
+        print(ret['st_code'], ret['st_text'])
+        return redirect(url_for('strategy_list', st_code=ret['st_code'], st_text=ret['st_text']))
+
+
+@app.route('/exec/unset-strategy', methods=['POST'])
+def exec_unset_strategy():
+    if not server.connection_test():
+        return "NFD is not running"
+
+    name = request.form['name']
+    ret = run_until_complete(server.unset_strategy(name))
+    if ret is None:
+        print("No response")
+        return redirect(url_for('strategy_list', st_code='-1', st_text='No response'))
+    else:
+        print(ret['st_code'], ret['st_text'])
+        return redirect(url_for('strategy_list', st_code=ret['st_code'], st_text=ret['st_text']))
 
 
 ### Others

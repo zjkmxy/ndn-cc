@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='ndn_message',
   syntax='proto2',
   serialized_options=None,
-  serialized_pb=_b('\n\x13nfd-face-mgmt.proto\x12\x0bndn_message\"\x19\n\x04Name\x12\x11\n\tcomponent\x18\x08 \x03(\x0c\"\xba\x02\n\x1c\x46\x61\x63\x65\x45ventNotificationMessage\x12\x61\n\x17\x66\x61\x63\x65_event_notification\x18\xc0\x01 \x02(\x0b\x32?.ndn_message.FaceEventNotificationMessage.FaceEventNotification\x1a\xb6\x01\n\x15\x46\x61\x63\x65\x45ventNotification\x12\x18\n\x0f\x66\x61\x63\x65_event_kind\x18\xc1\x01 \x02(\r\x12\x0f\n\x07\x66\x61\x63\x65_id\x18i \x02(\x04\x12\x0b\n\x03uri\x18r \x02(\x0c\x12\x12\n\tlocal_uri\x18\x81\x01 \x02(\x0c\x12\x13\n\nface_scope\x18\x84\x01 \x02(\r\x12\x19\n\x10\x66\x61\x63\x65_persistency\x18\x85\x01 \x02(\r\x12\x12\n\tlink_type\x18\x86\x01 \x02(\r\x12\r\n\x05\x66lags\x18l \x02(\x04\"\xa9\x03\n\x15\x43ontrolCommandMessage\x12P\n\x12\x63ontrol_parameters\x18h \x02(\x0b\x32\x34.ndn_message.ControlCommandMessage.ControlParameters\x1a\xbd\x02\n\x11\x43ontrolParameters\x12\x1f\n\x04name\x18\x07 \x01(\x0b\x32\x11.ndn_message.Name\x12\x0f\n\x07\x66\x61\x63\x65_id\x18i \x01(\x04\x12\x0b\n\x03uri\x18r \x01(\x0c\x12\x12\n\tlocal_uri\x18\x81\x01 \x01(\x0c\x12\x0e\n\x06origin\x18o \x01(\x04\x12\x0c\n\x04\x63ost\x18j \x01(\x04\x12\x11\n\x08\x63\x61pacity\x18\x83\x01 \x01(\x04\x12\x0e\n\x05\x63ount\x18\x84\x01 \x01(\x04\x12\x17\n\x0e\x62\x61se_cong_mark\x18\x87\x01 \x01(\x04\x12\x17\n\x0e\x64\x65\x66_cong_thres\x18\x88\x01 \x01(\x04\x12\x0c\n\x03mtu\x18\x89\x01 \x01(\x04\x12\r\n\x05\x66lags\x18l \x01(\x04\x12\x0c\n\x04mask\x18p \x01(\x04\x12#\n\x08strategy\x18k \x01(\x0b\x32\x11.ndn_message.Name\x12\x12\n\nexp_period\x18m \x01(\x04\"\x9c\x01\n\x16\x43ontrolResponseMessage\x12M\n\x10\x63ontrol_response\x18\x65 \x02(\x0b\x32\x33.ndn_message.ControlResponseMessage.ControlResponse\x1a\x33\n\x0f\x43ontrolResponse\x12\x0f\n\x07st_code\x18\x66 \x01(\x04\x12\x0f\n\x07st_text\x18g \x01(\x0c\"\xa4\x05\n\rGeneralStatus\x12\x14\n\x0bnfd_version\x18\x80\x01 \x01(\x0c\x12\x18\n\x0fstart_timestamp\x18\x81\x01 \x01(\x04\x12\x1a\n\x11\x63urrent_timestamp\x18\x82\x01 \x01(\x04\x12\x1c\n\x13n_name_tree_entries\x18\x83\x01 \x01(\x04\x12\x16\n\rn_fib_entries\x18\x84\x01 \x01(\x04\x12\x16\n\rn_pit_entries\x18\x85\x01 \x01(\x04\x12\x1e\n\x15n_measurement_entries\x18\x86\x01 \x01(\x04\x12\x15\n\x0cn_cs_entries\x18\x87\x01 \x01(\x04\x12\x17\n\x0en_in_interests\x18\x90\x01 \x01(\x04\x12\x12\n\tn_in_data\x18\x91\x01 \x01(\x04\x12\x13\n\nn_in_nacks\x18\x97\x01 \x01(\x04\x12\x18\n\x0fn_out_interests\x18\x92\x01 \x01(\x04\x12\x13\n\nn_out_data\x18\x93\x01 \x01(\x04\x12\x14\n\x0bn_out_nacks\x18\x98\x01 \x01(\x04\x12\x1e\n\x15n_satisfied_interests\x18\x99\x01 \x01(\x04\x12 \n\x17n_unsatisfied_interests\x18\x9a\x01 \x01(\x04\x12\x1f\n\x16n_fragmentation_errors\x18\xc8\x01 \x01(\x04\x12\x17\n\x0en_out_over_mtu\x18\xc9\x01 \x01(\x04\x12\x18\n\x0fn_in_lp_invalid\x18\xca\x01 \x01(\x04\x12\x1e\n\x15n_reassembly_timeouts\x18\xcb\x01 \x01(\x04\x12\x19\n\x10n_in_net_invalid\x18\xcc\x01 \x01(\x04\x12\x17\n\x0en_acknowledged\x18\xcd\x01 \x01(\x04\x12\x18\n\x0fn_retransmitted\x18\xce\x01 \x01(\x04\x12\x19\n\x10n_retx_exhausted\x18\xcf\x01 \x01(\x04\x12\x1c\n\x13n_congestion_marked\x18\xd0\x01 \x01(\x04\"\xee\x03\n\x11\x46\x61\x63\x65StatusMessage\x12?\n\x0b\x66\x61\x63\x65_status\x18\x80\x01 \x03(\x0b\x32).ndn_message.FaceStatusMessage.FaceStatus\x1a\x97\x03\n\nFaceStatus\x12\x0f\n\x07\x66\x61\x63\x65_id\x18i \x01(\x04\x12\x0b\n\x03uri\x18r \x01(\x0c\x12\x12\n\tlocal_uri\x18\x81\x01 \x01(\x0c\x12\x12\n\nexp_period\x18m \x01(\x04\x12\x13\n\nface_scope\x18\x84\x01 \x01(\x04\x12\x19\n\x10\x66\x61\x63\x65_persistency\x18\x85\x01 \x01(\x04\x12\x12\n\tlink_type\x18\x86\x01 \x01(\x04\x12\x17\n\x0e\x62\x61se_cong_mark\x18\x87\x01 \x01(\x04\x12\x17\n\x0e\x64\x65\x66_cong_thres\x18\x88\x01 \x01(\x04\x12\x0c\n\x03mtu\x18\x89\x01 \x01(\x04\x12\x17\n\x0en_in_interests\x18\x90\x01 \x01(\x04\x12\x12\n\tn_in_data\x18\x91\x01 \x01(\x04\x12\x13\n\nn_in_nacks\x18\x97\x01 \x01(\x04\x12\x18\n\x0fn_out_interests\x18\x92\x01 \x01(\x04\x12\x13\n\nn_out_data\x18\x93\x01 \x01(\x04\x12\x14\n\x0bn_out_nacks\x18\x98\x01 \x01(\x04\x12\x13\n\nn_in_bytes\x18\x94\x01 \x01(\x04\x12\x14\n\x0bn_out_bytes\x18\x95\x01 \x01(\x04\x12\r\n\x05\x66lags\x18l \x01(\x04\"\x95\x02\n\x10RibStatusMessage\x12:\n\trib_entry\x18\x80\x01 \x03(\x0b\x32&.ndn_message.RibStatusMessage.RibEntry\x1a\xc4\x01\n\x08RibEntry\x12\x1f\n\x04name\x18\x07 \x01(\x0b\x32\x11.ndn_message.Name\x12<\n\x05route\x18\x81\x01 \x03(\x0b\x32,.ndn_message.RibStatusMessage.RibEntry.Route\x1aY\n\x05Route\x12\x0f\n\x07\x66\x61\x63\x65_id\x18i \x01(\x04\x12\x0e\n\x06origin\x18o \x01(\x04\x12\x0c\n\x04\x63ost\x18j \x01(\x04\x12\r\n\x05\x66lags\x18l \x01(\x04\x12\x12\n\nexp_period\x18m \x01(\x04\"\x88\x02\n\x16\x46\x61\x63\x65QueryFilterMessage\x12O\n\x11\x66\x61\x63\x65_query_filter\x18\x96\x01 \x02(\x0b\x32\x33.ndn_message.FaceQueryFilterMessage.FaceQueryFilter\x1a\x9c\x01\n\x0f\x46\x61\x63\x65QueryFilter\x12\x0f\n\x07\x66\x61\x63\x65_id\x18i \x01(\x04\x12\x13\n\nuri_scheme\x18\x83\x01 \x01(\x0c\x12\x0b\n\x03uri\x18r \x01(\x0c\x12\x12\n\tlocal_uri\x18\x81\x01 \x01(\x0c\x12\x13\n\nface_scope\x18\x84\x01 \x01(\x04\x12\x19\n\x10\x66\x61\x63\x65_persistency\x18\x85\x01 \x01(\x04\x12\x12\n\tlink_type\x18\x86\x01 \x01(\r')
+  serialized_pb=_b('\n\x13nfd-face-mgmt.proto\x12\x0bndn_message\"\x19\n\x04Name\x12\x11\n\tcomponent\x18\x08 \x03(\x0c\"+\n\x08Strategy\x12\x1f\n\x04name\x18\x07 \x02(\x0b\x32\x11.ndn_message.Name\"\xba\x02\n\x1c\x46\x61\x63\x65\x45ventNotificationMessage\x12\x61\n\x17\x66\x61\x63\x65_event_notification\x18\xc0\x01 \x02(\x0b\x32?.ndn_message.FaceEventNotificationMessage.FaceEventNotification\x1a\xb6\x01\n\x15\x46\x61\x63\x65\x45ventNotification\x12\x18\n\x0f\x66\x61\x63\x65_event_kind\x18\xc1\x01 \x02(\r\x12\x0f\n\x07\x66\x61\x63\x65_id\x18i \x02(\x04\x12\x0b\n\x03uri\x18r \x02(\x0c\x12\x12\n\tlocal_uri\x18\x81\x01 \x02(\x0c\x12\x13\n\nface_scope\x18\x84\x01 \x02(\r\x12\x19\n\x10\x66\x61\x63\x65_persistency\x18\x85\x01 \x02(\r\x12\x12\n\tlink_type\x18\x86\x01 \x02(\r\x12\r\n\x05\x66lags\x18l \x02(\x04\"\xad\x03\n\x15\x43ontrolCommandMessage\x12P\n\x12\x63ontrol_parameters\x18h \x02(\x0b\x32\x34.ndn_message.ControlCommandMessage.ControlParameters\x1a\xc1\x02\n\x11\x43ontrolParameters\x12\x1f\n\x04name\x18\x07 \x01(\x0b\x32\x11.ndn_message.Name\x12\x0f\n\x07\x66\x61\x63\x65_id\x18i \x01(\x04\x12\x0b\n\x03uri\x18r \x01(\x0c\x12\x12\n\tlocal_uri\x18\x81\x01 \x01(\x0c\x12\x0e\n\x06origin\x18o \x01(\x04\x12\x0c\n\x04\x63ost\x18j \x01(\x04\x12\x11\n\x08\x63\x61pacity\x18\x83\x01 \x01(\x04\x12\x0e\n\x05\x63ount\x18\x84\x01 \x01(\x04\x12\x17\n\x0e\x62\x61se_cong_mark\x18\x87\x01 \x01(\x04\x12\x17\n\x0e\x64\x65\x66_cong_thres\x18\x88\x01 \x01(\x04\x12\x0c\n\x03mtu\x18\x89\x01 \x01(\x04\x12\r\n\x05\x66lags\x18l \x01(\x04\x12\x0c\n\x04mask\x18p \x01(\x04\x12\'\n\x08strategy\x18k \x01(\x0b\x32\x15.ndn_message.Strategy\x12\x12\n\nexp_period\x18m \x01(\x04\"\x9c\x01\n\x16\x43ontrolResponseMessage\x12M\n\x10\x63ontrol_response\x18\x65 \x02(\x0b\x32\x33.ndn_message.ControlResponseMessage.ControlResponse\x1a\x33\n\x0f\x43ontrolResponse\x12\x0f\n\x07st_code\x18\x66 \x01(\x04\x12\x0f\n\x07st_text\x18g \x01(\x0c\"\xa4\x05\n\rGeneralStatus\x12\x14\n\x0bnfd_version\x18\x80\x01 \x01(\x0c\x12\x18\n\x0fstart_timestamp\x18\x81\x01 \x01(\x04\x12\x1a\n\x11\x63urrent_timestamp\x18\x82\x01 \x01(\x04\x12\x1c\n\x13n_name_tree_entries\x18\x83\x01 \x01(\x04\x12\x16\n\rn_fib_entries\x18\x84\x01 \x01(\x04\x12\x16\n\rn_pit_entries\x18\x85\x01 \x01(\x04\x12\x1e\n\x15n_measurement_entries\x18\x86\x01 \x01(\x04\x12\x15\n\x0cn_cs_entries\x18\x87\x01 \x01(\x04\x12\x17\n\x0en_in_interests\x18\x90\x01 \x01(\x04\x12\x12\n\tn_in_data\x18\x91\x01 \x01(\x04\x12\x13\n\nn_in_nacks\x18\x97\x01 \x01(\x04\x12\x18\n\x0fn_out_interests\x18\x92\x01 \x01(\x04\x12\x13\n\nn_out_data\x18\x93\x01 \x01(\x04\x12\x14\n\x0bn_out_nacks\x18\x98\x01 \x01(\x04\x12\x1e\n\x15n_satisfied_interests\x18\x99\x01 \x01(\x04\x12 \n\x17n_unsatisfied_interests\x18\x9a\x01 \x01(\x04\x12\x1f\n\x16n_fragmentation_errors\x18\xc8\x01 \x01(\x04\x12\x17\n\x0en_out_over_mtu\x18\xc9\x01 \x01(\x04\x12\x18\n\x0fn_in_lp_invalid\x18\xca\x01 \x01(\x04\x12\x1e\n\x15n_reassembly_timeouts\x18\xcb\x01 \x01(\x04\x12\x19\n\x10n_in_net_invalid\x18\xcc\x01 \x01(\x04\x12\x17\n\x0en_acknowledged\x18\xcd\x01 \x01(\x04\x12\x18\n\x0fn_retransmitted\x18\xce\x01 \x01(\x04\x12\x19\n\x10n_retx_exhausted\x18\xcf\x01 \x01(\x04\x12\x1c\n\x13n_congestion_marked\x18\xd0\x01 \x01(\x04\"\xee\x03\n\x11\x46\x61\x63\x65StatusMessage\x12?\n\x0b\x66\x61\x63\x65_status\x18\x80\x01 \x03(\x0b\x32).ndn_message.FaceStatusMessage.FaceStatus\x1a\x97\x03\n\nFaceStatus\x12\x0f\n\x07\x66\x61\x63\x65_id\x18i \x01(\x04\x12\x0b\n\x03uri\x18r \x01(\x0c\x12\x12\n\tlocal_uri\x18\x81\x01 \x01(\x0c\x12\x12\n\nexp_period\x18m \x01(\x04\x12\x13\n\nface_scope\x18\x84\x01 \x01(\x04\x12\x19\n\x10\x66\x61\x63\x65_persistency\x18\x85\x01 \x01(\x04\x12\x12\n\tlink_type\x18\x86\x01 \x01(\x04\x12\x17\n\x0e\x62\x61se_cong_mark\x18\x87\x01 \x01(\x04\x12\x17\n\x0e\x64\x65\x66_cong_thres\x18\x88\x01 \x01(\x04\x12\x0c\n\x03mtu\x18\x89\x01 \x01(\x04\x12\x17\n\x0en_in_interests\x18\x90\x01 \x01(\x04\x12\x12\n\tn_in_data\x18\x91\x01 \x01(\x04\x12\x13\n\nn_in_nacks\x18\x97\x01 \x01(\x04\x12\x18\n\x0fn_out_interests\x18\x92\x01 \x01(\x04\x12\x13\n\nn_out_data\x18\x93\x01 \x01(\x04\x12\x14\n\x0bn_out_nacks\x18\x98\x01 \x01(\x04\x12\x13\n\nn_in_bytes\x18\x94\x01 \x01(\x04\x12\x14\n\x0bn_out_bytes\x18\x95\x01 \x01(\x04\x12\r\n\x05\x66lags\x18l \x01(\x04\"\x95\x02\n\x10RibStatusMessage\x12:\n\trib_entry\x18\x80\x01 \x03(\x0b\x32&.ndn_message.RibStatusMessage.RibEntry\x1a\xc4\x01\n\x08RibEntry\x12\x1f\n\x04name\x18\x07 \x01(\x0b\x32\x11.ndn_message.Name\x12<\n\x05route\x18\x81\x01 \x03(\x0b\x32,.ndn_message.RibStatusMessage.RibEntry.Route\x1aY\n\x05Route\x12\x0f\n\x07\x66\x61\x63\x65_id\x18i \x01(\x04\x12\x0e\n\x06origin\x18o \x01(\x04\x12\x0c\n\x04\x63ost\x18j \x01(\x04\x12\r\n\x05\x66lags\x18l \x01(\x04\x12\x12\n\nexp_period\x18m \x01(\x04\"\x88\x02\n\x16\x46\x61\x63\x65QueryFilterMessage\x12O\n\x11\x66\x61\x63\x65_query_filter\x18\x96\x01 \x02(\x0b\x32\x33.ndn_message.FaceQueryFilterMessage.FaceQueryFilter\x1a\x9c\x01\n\x0f\x46\x61\x63\x65QueryFilter\x12\x0f\n\x07\x66\x61\x63\x65_id\x18i \x01(\x04\x12\x13\n\nuri_scheme\x18\x83\x01 \x01(\x0c\x12\x0b\n\x03uri\x18r \x01(\x0c\x12\x12\n\tlocal_uri\x18\x81\x01 \x01(\x0c\x12\x13\n\nface_scope\x18\x84\x01 \x01(\x04\x12\x19\n\x10\x66\x61\x63\x65_persistency\x18\x85\x01 \x01(\x04\x12\x12\n\tlink_type\x18\x86\x01 \x01(\r\"\xc0\x01\n\x15StrategyChoiceMessage\x12K\n\x0fstrategy_choice\x18\x80\x01 \x03(\x0b\x32\x31.ndn_message.StrategyChoiceMessage.StrategyChoice\x1aZ\n\x0eStrategyChoice\x12\x1f\n\x04name\x18\x07 \x01(\x0b\x32\x11.ndn_message.Name\x12\'\n\x08strategy\x18k \x01(\x0b\x32\x15.ndn_message.Strategy\"\xab\x01\n\rCsInfoMessage\x12\x33\n\x07\x63s_info\x18\x80\x01 \x03(\x0b\x32!.ndn_message.CsInfoMessage.CsInfo\x1a\x65\n\x06\x43sInfo\x12\x11\n\x08\x63\x61pacity\x18\x83\x01 \x01(\x04\x12\r\n\x05\x66lags\x18l \x01(\x04\x12\x15\n\x0cn_cs_entries\x18\x87\x01 \x01(\x04\x12\x0f\n\x06n_hits\x18\x81\x01 \x01(\x04\x12\x11\n\x08n_misses\x18\x82\x01 \x01(\x04\"\x8e\x01\n\x0e\x43sQueryMessage\x12\x36\n\x08\x63s_query\x18\x80\x01 \x03(\x0b\x32#.ndn_message.CsQueryMessage.CsQuery\x1a\x44\n\x07\x43sQuery\x12\x1f\n\x04name\x18\x07 \x01(\x0b\x32\x11.ndn_message.Name\x12\x18\n\x10\x66reshness_period\x18\x19 \x01(\x04')
 )
 
 
@@ -54,6 +54,37 @@ _NAME = _descriptor.Descriptor(
   ],
   serialized_start=36,
   serialized_end=61,
+)
+
+
+_STRATEGY = _descriptor.Descriptor(
+  name='Strategy',
+  full_name='ndn_message.Strategy',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='name', full_name='ndn_message.Strategy.name', index=0,
+      number=7, type=11, cpp_type=10, label=2,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=63,
+  serialized_end=106,
 )
 
 
@@ -132,8 +163,8 @@ _FACEEVENTNOTIFICATIONMESSAGE_FACEEVENTNOTIFICATION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=196,
-  serialized_end=378,
+  serialized_start=241,
+  serialized_end=423,
 )
 
 _FACEEVENTNOTIFICATIONMESSAGE = _descriptor.Descriptor(
@@ -162,8 +193,8 @@ _FACEEVENTNOTIFICATIONMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=64,
-  serialized_end=378,
+  serialized_start=109,
+  serialized_end=423,
 )
 
 
@@ -291,8 +322,8 @@ _CONTROLCOMMANDMESSAGE_CONTROLPARAMETERS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=489,
-  serialized_end=806,
+  serialized_start=534,
+  serialized_end=855,
 )
 
 _CONTROLCOMMANDMESSAGE = _descriptor.Descriptor(
@@ -321,8 +352,8 @@ _CONTROLCOMMANDMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=381,
-  serialized_end=806,
+  serialized_start=426,
+  serialized_end=855,
 )
 
 
@@ -359,8 +390,8 @@ _CONTROLRESPONSEMESSAGE_CONTROLRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=914,
-  serialized_end=965,
+  serialized_start=963,
+  serialized_end=1014,
 )
 
 _CONTROLRESPONSEMESSAGE = _descriptor.Descriptor(
@@ -389,8 +420,8 @@ _CONTROLRESPONSEMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=809,
-  serialized_end=965,
+  serialized_start=858,
+  serialized_end=1014,
 )
 
 
@@ -588,8 +619,8 @@ _GENERALSTATUS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=968,
-  serialized_end=1644,
+  serialized_start=1017,
+  serialized_end=1693,
 )
 
 
@@ -745,8 +776,8 @@ _FACESTATUSMESSAGE_FACESTATUS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1734,
-  serialized_end=2141,
+  serialized_start=1783,
+  serialized_end=2190,
 )
 
 _FACESTATUSMESSAGE = _descriptor.Descriptor(
@@ -775,8 +806,8 @@ _FACESTATUSMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1647,
-  serialized_end=2141,
+  serialized_start=1696,
+  serialized_end=2190,
 )
 
 
@@ -834,8 +865,8 @@ _RIBSTATUSMESSAGE_RIBENTRY_ROUTE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2332,
-  serialized_end=2421,
+  serialized_start=2381,
+  serialized_end=2470,
 )
 
 _RIBSTATUSMESSAGE_RIBENTRY = _descriptor.Descriptor(
@@ -871,8 +902,8 @@ _RIBSTATUSMESSAGE_RIBENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2225,
-  serialized_end=2421,
+  serialized_start=2274,
+  serialized_end=2470,
 )
 
 _RIBSTATUSMESSAGE = _descriptor.Descriptor(
@@ -901,8 +932,8 @@ _RIBSTATUSMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2144,
-  serialized_end=2421,
+  serialized_start=2193,
+  serialized_end=2470,
 )
 
 
@@ -974,8 +1005,8 @@ _FACEQUERYFILTERMESSAGE_FACEQUERYFILTER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2532,
-  serialized_end=2688,
+  serialized_start=2581,
+  serialized_end=2737,
 )
 
 _FACEQUERYFILTERMESSAGE = _descriptor.Descriptor(
@@ -1004,14 +1035,240 @@ _FACEQUERYFILTERMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2424,
-  serialized_end=2688,
+  serialized_start=2473,
+  serialized_end=2737,
 )
 
+
+_STRATEGYCHOICEMESSAGE_STRATEGYCHOICE = _descriptor.Descriptor(
+  name='StrategyChoice',
+  full_name='ndn_message.StrategyChoiceMessage.StrategyChoice',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='name', full_name='ndn_message.StrategyChoiceMessage.StrategyChoice.name', index=0,
+      number=7, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='strategy', full_name='ndn_message.StrategyChoiceMessage.StrategyChoice.strategy', index=1,
+      number=107, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=2842,
+  serialized_end=2932,
+)
+
+_STRATEGYCHOICEMESSAGE = _descriptor.Descriptor(
+  name='StrategyChoiceMessage',
+  full_name='ndn_message.StrategyChoiceMessage',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='strategy_choice', full_name='ndn_message.StrategyChoiceMessage.strategy_choice', index=0,
+      number=128, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[_STRATEGYCHOICEMESSAGE_STRATEGYCHOICE, ],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=2740,
+  serialized_end=2932,
+)
+
+
+_CSINFOMESSAGE_CSINFO = _descriptor.Descriptor(
+  name='CsInfo',
+  full_name='ndn_message.CsInfoMessage.CsInfo',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='capacity', full_name='ndn_message.CsInfoMessage.CsInfo.capacity', index=0,
+      number=131, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='flags', full_name='ndn_message.CsInfoMessage.CsInfo.flags', index=1,
+      number=108, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='n_cs_entries', full_name='ndn_message.CsInfoMessage.CsInfo.n_cs_entries', index=2,
+      number=135, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='n_hits', full_name='ndn_message.CsInfoMessage.CsInfo.n_hits', index=3,
+      number=129, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='n_misses', full_name='ndn_message.CsInfoMessage.CsInfo.n_misses', index=4,
+      number=130, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=3005,
+  serialized_end=3106,
+)
+
+_CSINFOMESSAGE = _descriptor.Descriptor(
+  name='CsInfoMessage',
+  full_name='ndn_message.CsInfoMessage',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='cs_info', full_name='ndn_message.CsInfoMessage.cs_info', index=0,
+      number=128, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[_CSINFOMESSAGE_CSINFO, ],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=2935,
+  serialized_end=3106,
+)
+
+
+_CSQUERYMESSAGE_CSQUERY = _descriptor.Descriptor(
+  name='CsQuery',
+  full_name='ndn_message.CsQueryMessage.CsQuery',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='name', full_name='ndn_message.CsQueryMessage.CsQuery.name', index=0,
+      number=7, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='freshness_period', full_name='ndn_message.CsQueryMessage.CsQuery.freshness_period', index=1,
+      number=25, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=3183,
+  serialized_end=3251,
+)
+
+_CSQUERYMESSAGE = _descriptor.Descriptor(
+  name='CsQueryMessage',
+  full_name='ndn_message.CsQueryMessage',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='cs_query', full_name='ndn_message.CsQueryMessage.cs_query', index=0,
+      number=128, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[_CSQUERYMESSAGE_CSQUERY, ],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=3109,
+  serialized_end=3251,
+)
+
+_STRATEGY.fields_by_name['name'].message_type = _NAME
 _FACEEVENTNOTIFICATIONMESSAGE_FACEEVENTNOTIFICATION.containing_type = _FACEEVENTNOTIFICATIONMESSAGE
 _FACEEVENTNOTIFICATIONMESSAGE.fields_by_name['face_event_notification'].message_type = _FACEEVENTNOTIFICATIONMESSAGE_FACEEVENTNOTIFICATION
 _CONTROLCOMMANDMESSAGE_CONTROLPARAMETERS.fields_by_name['name'].message_type = _NAME
-_CONTROLCOMMANDMESSAGE_CONTROLPARAMETERS.fields_by_name['strategy'].message_type = _NAME
+_CONTROLCOMMANDMESSAGE_CONTROLPARAMETERS.fields_by_name['strategy'].message_type = _STRATEGY
 _CONTROLCOMMANDMESSAGE_CONTROLPARAMETERS.containing_type = _CONTROLCOMMANDMESSAGE
 _CONTROLCOMMANDMESSAGE.fields_by_name['control_parameters'].message_type = _CONTROLCOMMANDMESSAGE_CONTROLPARAMETERS
 _CONTROLRESPONSEMESSAGE_CONTROLRESPONSE.containing_type = _CONTROLRESPONSEMESSAGE
@@ -1025,7 +1282,17 @@ _RIBSTATUSMESSAGE_RIBENTRY.containing_type = _RIBSTATUSMESSAGE
 _RIBSTATUSMESSAGE.fields_by_name['rib_entry'].message_type = _RIBSTATUSMESSAGE_RIBENTRY
 _FACEQUERYFILTERMESSAGE_FACEQUERYFILTER.containing_type = _FACEQUERYFILTERMESSAGE
 _FACEQUERYFILTERMESSAGE.fields_by_name['face_query_filter'].message_type = _FACEQUERYFILTERMESSAGE_FACEQUERYFILTER
+_STRATEGYCHOICEMESSAGE_STRATEGYCHOICE.fields_by_name['name'].message_type = _NAME
+_STRATEGYCHOICEMESSAGE_STRATEGYCHOICE.fields_by_name['strategy'].message_type = _STRATEGY
+_STRATEGYCHOICEMESSAGE_STRATEGYCHOICE.containing_type = _STRATEGYCHOICEMESSAGE
+_STRATEGYCHOICEMESSAGE.fields_by_name['strategy_choice'].message_type = _STRATEGYCHOICEMESSAGE_STRATEGYCHOICE
+_CSINFOMESSAGE_CSINFO.containing_type = _CSINFOMESSAGE
+_CSINFOMESSAGE.fields_by_name['cs_info'].message_type = _CSINFOMESSAGE_CSINFO
+_CSQUERYMESSAGE_CSQUERY.fields_by_name['name'].message_type = _NAME
+_CSQUERYMESSAGE_CSQUERY.containing_type = _CSQUERYMESSAGE
+_CSQUERYMESSAGE.fields_by_name['cs_query'].message_type = _CSQUERYMESSAGE_CSQUERY
 DESCRIPTOR.message_types_by_name['Name'] = _NAME
+DESCRIPTOR.message_types_by_name['Strategy'] = _STRATEGY
 DESCRIPTOR.message_types_by_name['FaceEventNotificationMessage'] = _FACEEVENTNOTIFICATIONMESSAGE
 DESCRIPTOR.message_types_by_name['ControlCommandMessage'] = _CONTROLCOMMANDMESSAGE
 DESCRIPTOR.message_types_by_name['ControlResponseMessage'] = _CONTROLRESPONSEMESSAGE
@@ -1033,6 +1300,9 @@ DESCRIPTOR.message_types_by_name['GeneralStatus'] = _GENERALSTATUS
 DESCRIPTOR.message_types_by_name['FaceStatusMessage'] = _FACESTATUSMESSAGE
 DESCRIPTOR.message_types_by_name['RibStatusMessage'] = _RIBSTATUSMESSAGE
 DESCRIPTOR.message_types_by_name['FaceQueryFilterMessage'] = _FACEQUERYFILTERMESSAGE
+DESCRIPTOR.message_types_by_name['StrategyChoiceMessage'] = _STRATEGYCHOICEMESSAGE
+DESCRIPTOR.message_types_by_name['CsInfoMessage'] = _CSINFOMESSAGE
+DESCRIPTOR.message_types_by_name['CsQueryMessage'] = _CSQUERYMESSAGE
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 Name = _reflection.GeneratedProtocolMessageType('Name', (_message.Message,), dict(
@@ -1041,6 +1311,13 @@ Name = _reflection.GeneratedProtocolMessageType('Name', (_message.Message,), dic
   # @@protoc_insertion_point(class_scope:ndn_message.Name)
   ))
 _sym_db.RegisterMessage(Name)
+
+Strategy = _reflection.GeneratedProtocolMessageType('Strategy', (_message.Message,), dict(
+  DESCRIPTOR = _STRATEGY,
+  __module__ = 'nfd_face_mgmt_pb2'
+  # @@protoc_insertion_point(class_scope:ndn_message.Strategy)
+  ))
+_sym_db.RegisterMessage(Strategy)
 
 FaceEventNotificationMessage = _reflection.GeneratedProtocolMessageType('FaceEventNotificationMessage', (_message.Message,), dict(
 
@@ -1146,6 +1423,51 @@ FaceQueryFilterMessage = _reflection.GeneratedProtocolMessageType('FaceQueryFilt
   ))
 _sym_db.RegisterMessage(FaceQueryFilterMessage)
 _sym_db.RegisterMessage(FaceQueryFilterMessage.FaceQueryFilter)
+
+StrategyChoiceMessage = _reflection.GeneratedProtocolMessageType('StrategyChoiceMessage', (_message.Message,), dict(
+
+  StrategyChoice = _reflection.GeneratedProtocolMessageType('StrategyChoice', (_message.Message,), dict(
+    DESCRIPTOR = _STRATEGYCHOICEMESSAGE_STRATEGYCHOICE,
+    __module__ = 'nfd_face_mgmt_pb2'
+    # @@protoc_insertion_point(class_scope:ndn_message.StrategyChoiceMessage.StrategyChoice)
+    ))
+  ,
+  DESCRIPTOR = _STRATEGYCHOICEMESSAGE,
+  __module__ = 'nfd_face_mgmt_pb2'
+  # @@protoc_insertion_point(class_scope:ndn_message.StrategyChoiceMessage)
+  ))
+_sym_db.RegisterMessage(StrategyChoiceMessage)
+_sym_db.RegisterMessage(StrategyChoiceMessage.StrategyChoice)
+
+CsInfoMessage = _reflection.GeneratedProtocolMessageType('CsInfoMessage', (_message.Message,), dict(
+
+  CsInfo = _reflection.GeneratedProtocolMessageType('CsInfo', (_message.Message,), dict(
+    DESCRIPTOR = _CSINFOMESSAGE_CSINFO,
+    __module__ = 'nfd_face_mgmt_pb2'
+    # @@protoc_insertion_point(class_scope:ndn_message.CsInfoMessage.CsInfo)
+    ))
+  ,
+  DESCRIPTOR = _CSINFOMESSAGE,
+  __module__ = 'nfd_face_mgmt_pb2'
+  # @@protoc_insertion_point(class_scope:ndn_message.CsInfoMessage)
+  ))
+_sym_db.RegisterMessage(CsInfoMessage)
+_sym_db.RegisterMessage(CsInfoMessage.CsInfo)
+
+CsQueryMessage = _reflection.GeneratedProtocolMessageType('CsQueryMessage', (_message.Message,), dict(
+
+  CsQuery = _reflection.GeneratedProtocolMessageType('CsQuery', (_message.Message,), dict(
+    DESCRIPTOR = _CSQUERYMESSAGE_CSQUERY,
+    __module__ = 'nfd_face_mgmt_pb2'
+    # @@protoc_insertion_point(class_scope:ndn_message.CsQueryMessage.CsQuery)
+    ))
+  ,
+  DESCRIPTOR = _CSQUERYMESSAGE,
+  __module__ = 'nfd_face_mgmt_pb2'
+  # @@protoc_insertion_point(class_scope:ndn_message.CsQueryMessage)
+  ))
+_sym_db.RegisterMessage(CsQueryMessage)
+_sym_db.RegisterMessage(CsQueryMessage.CsQuery)
 
 
 # @@protoc_insertion_point(module_scope)

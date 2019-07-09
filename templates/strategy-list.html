@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>General Status</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/face-list.css') }}">
+</head>
+<body>
+  <h1>{{ name }}</h1>
+  <table>
+    <caption>Strategy List</caption>
+    <tr>
+      <th>Name</th>
+      <th>Strategy</th>
+    </tr>
+    {% for item in strategy_list %}
+      <tr>
+      <td>{{ item['name']|e }}</td>
+      <td>{{ item['strategy']|e }}</td>
+      <td>
+        <form action="../exec/unset-strategy" method="post">
+          <input type="hidden" name="name" value={{ item["name"] }}>
+          <button type="submit">Unset</button>
+        </form>
+      </td>
+      </tr>
+    {% endfor %}
+  </table>
+  <form action="../exec/set-strategy" method="post">
+    <p>
+      <label for="name">Name</label>
+      <input type="text" name="name" id="name"/>
+    </p>
+    <p>
+      <label for="strategy">Strategy</label>
+      <select name="strategy" id="strategy">
+        <option value="/localhost/nfd/strategy/multicast">Multicast</option>
+        <option value="/localhost/nfd/strategy/best-route">Best Route</option>
+        <option value="/localhost/nfd/strategy/access">Access Router</option>
+        <option value="/localhost/nfd/strategy/asf">ASF (Adaptive SRTT-based Forwarding)</option>
+        <option value="/localhost/nfd/strategy/self-learning">Self-Learning</option>
+        <option value="/localhost/nfd/strategy/ncc">NCC (CCNx default)</option>
+      </select>
+    </p>
+    <p>
+      <button type="submit">Set</button>
+    </p>
+  </form>
+  {% if st_code %}
+    <p>{{ st_code }} {{ st_text }}</p>
+  {% endif %}
+</body>
+</html>

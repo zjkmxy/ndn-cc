@@ -73,7 +73,7 @@ def decode_name(name) -> str:
     """
     ret = Name()
     for comp in name.component:
-        ret.append(comp.decode('utf-8'))
+        ret.append(comp)
     return ret.toUri()
 
 
