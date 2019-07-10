@@ -19,7 +19,7 @@ app = Flask(__name__,
             static_folder='static')
 
 app.config['SECRET_KEY'] = '3mlf4j8um6mg2-qlhyzk4ngxxk$8t4hh&$r)%968koxd3i(j#f'
-socketio = SocketIO(app)
+socketio = SocketIO(app, async_mode='threading')
 server = Server.start_server(socketio.emit)
 
 

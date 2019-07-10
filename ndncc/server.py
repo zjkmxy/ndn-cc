@@ -41,6 +41,11 @@ class Server:
         self.face.shutdown()
         self.face = None
 
+    def get_or_create_certificate(self):
+        id_name = Name('/ndncc')
+        cur_id = self.keychain.createIdentityV2(id_name)
+        return cur_id.getDefaultKey().getDefaultCertificate().name
+
     def connection_test(self):
         interest = Interest("/localhost/nfd/faces/events")
         interest.mustBeFresh = True
@@ -59,7 +64,7 @@ class Server:
         while self.running:
             print("Restarting face...")
             self.face = Face()
-            self.face.setCommandSigningInfo(self.keychain, self.keychain.getDefaultCertificateName())
+            self.face.setCommandSigningInfo(self.keychain, self.get_or_create_certificate())
             if self.connection_test():
                 print("Succeeded")
                 face_event = asyncio.get_event_loop().create_task(self.face_event())
