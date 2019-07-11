@@ -27,3 +27,11 @@ Python server:
 ```bash
 ./venv/bin/python app.py
 ```
+
+Generate OSX App
+================
+```bash
+. venv/bin.activate
+python setup.py py2app
+```
+This application needs to be codesigned manually.

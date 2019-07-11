@@ -1,5 +1,3 @@
-from typing import Set
-from functools import reduce
 import threading
 from pyndn import Face, Interest, Data, Name
 from pyndn.security import KeyChain, Pib
