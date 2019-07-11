@@ -30,11 +30,13 @@ OPTIONS = {'argv_emulation': True,
                'Werkzeug',
                'pystray',
                'Pillow',
-
                'ndncc',
                'engineio.async_drivers.threading',
                'jinja2.ext',
                ],
+           'packages': [
+               'Pillow',
+           ],
            'plist': {
                'CFBundleIdentifier': "com.ndn.ndncc",
                'CFBundleName': "NDNCC",

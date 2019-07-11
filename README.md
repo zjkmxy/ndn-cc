@@ -30,8 +30,16 @@ Python server:
 
 Generate OSX App
 ================
+To generate a OSX Application, Pillow needs to be compiled from source.
 ```bash
-. venv/bin.activate
+git clone --branch 6.1.0 https://github.com/python-pillow/Pillow.git
+cd Pillow
+sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target /
+LDFLAGS=”-headerpad_max_install_names” python setup.py install
+```
+And then use `py2app`.
+```bash
+. venv/bin/activate
 python setup.py py2app
 ```
 This application needs to be codesigned manually.
