@@ -170,8 +170,8 @@ class Server:
                 else:
                     retry_count += 1
             else:
-                print("NFD is not running")
-                self.face.start_reconnection()
+                print("NFD is not running: start reconnection")
+                self.start_reconnection()
                 return
 
             await asyncio.sleep(0.1)
