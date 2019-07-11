@@ -1,4 +1,8 @@
 import threading
+import asyncio
+import urllib.request
+import socket
+from datetime import datetime
 from pyndn import Face, Interest, Data, Name
 from pyndn.security import KeyChain, Pib
 from pyndn.encoding import ProtobufTlv
@@ -8,9 +12,6 @@ from pyndn.security.v2.certificate_v2 import CertificateV2
 from .asyncndn import fetch_data_packet
 from .nfd_face_mgmt_pb2 import FaceEventNotificationMessage, ControlCommandMessage,\
     ControlResponseMessage, FaceQueryFilterMessage, FaceStatusMessage
-import asyncio
-import urllib.request
-import socket
 
 
 class Server:
@@ -147,6 +148,7 @@ class Server:
             face_interest.interestLifetimeMilliseconds = retry_time
 
             ret = await fetch_data_packet(self.face, face_interest)
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
             if isinstance(ret, Data):
                 retry_count = 0
@@ -157,6 +159,7 @@ class Server:
 
                     dic = self.face_event_to_dict(face_event.face_event_notification)
                     dic['seq'] = str(last_seq)
+                    dic['time'] = timestamp
                     self.emit('face event', dic)
                     self.event_list.append(dic)
                 except RuntimeError as exc:

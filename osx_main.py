@@ -3,6 +3,7 @@ import pystray
 import os
 import signal
 from PIL import Image
+from sys import platform
 
 
 if __name__ == '__main__':
@@ -11,8 +12,11 @@ if __name__ == '__main__':
         app_main()
     else:
         def sudo_execute(cmd):
-            script_text = 'do shell script "{}" with administrator privileges'.format(cmd)
-            os.spawnlp(os.P_NOWAIT, 'osascript', 'osascript', '-e', script_text)
+            if platform == "darwin":
+                script_text = 'do shell script "{}" with administrator privileges'.format(cmd)
+                os.spawnlp(os.P_NOWAIT, 'osascript', 'osascript', '-e', script_text)
+            else:
+                os.spawnlp(os.P_NOWAIT, 'gksudo', 'gksudo', cmd)
 
         def setup(ico):
             ico.visible = True
