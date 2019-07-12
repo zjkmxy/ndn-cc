@@ -2,6 +2,7 @@ import threading
 import asyncio
 import urllib.request
 import socket
+import logging
 from datetime import datetime
 from pyndn import Face, Interest, Data, Name
 from pyndn.security import KeyChain, Pib
@@ -61,22 +62,22 @@ class Server:
 
     async def run(self):
         while self.running:
-            print("Restarting face...")
+            logging.info("Restarting face...")
             self.face = Face()
             self.face.setCommandSigningInfo(self.keychain, self.get_or_create_certificate())
             if self.connection_test():
-                print("Succeeded")
+                logging.info("Face creation succeeded")
                 face_event = asyncio.get_event_loop().create_task(self.face_event())
                 while self.running and self.face is not None:
                     try:
                         self.face.processEvents()
                     except AttributeError:
-                        print("Attribute error.")
+                        logging.info("Attribute error.")
                         self.start_reconnection()
                     await asyncio.sleep(0.01)
                 await face_event
             else:
-                print("Failed")
+                logging.info("Face creation failed")
             await asyncio.sleep(3)
 
     @staticmethod
@@ -142,7 +143,7 @@ class Server:
             else:
                 face_interest.mustBeFresh = True
                 face_interest.canBePrefix = True
-            print(name.toUri())
+            logging.info("Face event notification stream %s", name.toUri())
             face_interest.name = name
             # face_interest.interestLifetimeMilliseconds = 60000
             face_interest.interestLifetimeMilliseconds = retry_time
@@ -163,17 +164,17 @@ class Server:
                     self.emit('face event', dic)
                     self.event_list.append(dic)
                 except RuntimeError as exc:
-                    print('Decode failed', exc)
+                    logging.fatal('Decode failed %s', exc)
                     last_seq = -1
             elif ret is None:
                 if retry_count >= retry_count_limit:
-                    print("No response")
+                    logging.info("No response: face event")
                     last_seq = -1
                     retry_count = 0
                 else:
                     retry_count += 1
             else:
-                print("NFD is not running: start reconnection")
+                logging.info("NFD is not running: start reconnection")
                 self.start_reconnection()
                 return
 
@@ -187,10 +188,10 @@ class Server:
                 ProtobufTlv.decode(response, ret.content)
 
                 dic = self.response_to_dict(response.control_response)
-                print(dic)
+                logging.info("Issue command Interest with %s", dic)
                 return dic
             except RuntimeError as exc:
-                print('Decode failed', exc)
+                logging.fatal('Decode failed %s', exc)
         return None
 
     async def add_face(self, uri):
@@ -355,7 +356,7 @@ class Server:
     @staticmethod
     def delete_security_object(name, kind):
         key_chain = KeyChain()
-        print(name, kind)
+        logging.info("Delete security object %s %s", name, kind)
         if kind == "c":
             id_name = CertificateV2.extractIdentityFromCertName(Name(name))
             key_name = CertificateV2.extractKeyNameFromCertName(Name(name))
@@ -385,7 +386,7 @@ class Server:
         try:
             ProtobufTlv.decode(msg, ret.content)
         except RuntimeError as exc:
-            print("Decoding Error", exc)
+            logging.fatal("Decoding Error %s", exc)
             return None
         if len(msg.face_status) <= 0:
             return None
@@ -408,7 +409,7 @@ class Server:
         try:
             ProtobufTlv.decode(response, ret.content)
         except RuntimeError as exc:
-            print('Decode failed', exc)
+            logging.info('Decode failed %s', exc)
             return False, "Create face failed"
 
         # # Ignore duplicated face

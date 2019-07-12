@@ -35,7 +35,7 @@ To generate a OSX Application, Pillow needs to be compiled from source.
 git clone --branch 6.1.0 https://github.com/python-pillow/Pillow.git
 cd Pillow
 sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target /
-LDFLAGS=”-headerpad_max_install_names” python setup.py install
+LDFLAGS="-headerpad_max_install_names" python setup.py install
 ```
 And then use `py2app`.
 ```bash

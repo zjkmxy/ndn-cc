@@ -2,6 +2,7 @@ import asyncio
 import subprocess
 import time
 import os
+import logging
 from datetime import datetime
 from ndncc.server import Server
 from flask import Flask, redirect, render_template, request, url_for
@@ -15,6 +16,11 @@ from pyndn.encoding import ProtobufTlv
 
 
 def app_main():
+    logging.basicConfig(format='[{asctime}]{levelname}:{message}',
+                        datefmt='%Y-%m-%d %H:%M:%S',
+                        level=logging.INFO,
+                        style='{')
+
     base_path = os.getcwd()
     # Serve static content from /static
     app = Flask(__name__,
@@ -53,14 +59,14 @@ def app_main():
             try:
                 ProtobufTlv.decode(msg, ret.content)
             except RuntimeError as exc:
-                print("Decoding Error", exc)
+                logging.fatal("Decoding Error %s", exc)
                 return "Decoding Error"
             status = decode_dict(msg)
             status['start_timestamp'] = convert_time(status['start_timestamp'])
             status['current_timestamp'] = convert_time(status['current_timestamp'])
             return render_template('general-status.html', name=name, status=status)
         else:
-            print("No response")
+            logging.info("No response: general status")
             return "NFD is not running"
 
 
@@ -73,9 +79,9 @@ def app_main():
         uri = request.form['ip']
         ret = run_until_complete(server.add_face(uri))
         if ret is None:
-            print("No response")
+            logging.info("No response: add face")
         else:
-            print(ret['st_code'], ret['st_text'])
+            logging.info("Add face %s %s %s", uri, ret['st_code'], ret['st_text'])
         return redirect(url_for('face_list', st_code=ret['st_code'], st_text=ret['st_text']))
 
     @app.route('/exec/remove-face', methods=['POST'])
@@ -86,9 +92,9 @@ def app_main():
         face_id = int(request.form['face_id'])
         ret = run_until_complete(server.remove_face(face_id))
         if ret is None:
-            print("No response")
+            logging.info("No response: remove face")
         else:
-            print(ret['st_code'], ret['st_text'])
+            logging.info("Remove face %s %s %s", face_id, ret['st_code'], ret['st_text'])
         return redirect(url_for('face_list', st_code=ret['st_code'], st_text=ret['st_text']))
 
     @app.route('/face-list')
@@ -103,7 +109,7 @@ def app_main():
             try:
                 ProtobufTlv.decode(msg, ret.content)
             except RuntimeError as exc:
-                print("Decoding Error", exc)
+                logging.fatal("Decoding Error %s", exc)
                 return "Decoding Error"
             face_list = decode_list(msg.face_status)
             fields = list(face_list[0].keys())
@@ -111,7 +117,7 @@ def app_main():
             return render_template('face-list.html', face_list=face_list,
                                    fields_collapse=fields_collapse, **request.args.to_dict())
         else:
-            print("No response: face-list")
+            logging.info("No response: face-list")
             return "NFD is not running"
 
     @app.route('/face-events')
@@ -135,9 +141,9 @@ def app_main():
 
         ret = run_until_complete(server.add_route(name, face_id))
         if ret is None:
-            print("No response")
+            logging.info("No response: add route")
         else:
-            print(ret['st_code'], ret['st_text'])
+            logging.info("Add route %s->%s %s %s", name, face_id, ret['st_code'], ret['st_text'])
         return redirect(url_for('route_list', st_code=ret['st_code'], st_text=ret['st_text']))
 
     @app.route('/exec/remove-route', methods=['POST'])
@@ -149,9 +155,9 @@ def app_main():
         face_id = int(request.form['face_id'])
         ret = run_until_complete(server.remove_route(name, face_id))
         if ret is None:
-            print("No response")
+            logging.info("No response: remove route")
         else:
-            print(ret['st_code'], ret['st_text'])
+            logging.info("Remove route %s->%s %s %s", name, face_id, ret['st_code'], ret['st_text'])
         return redirect(url_for('route_list', st_code=ret['st_code'], st_text=ret['st_text']))
 
     @app.route('/route-list')
@@ -174,12 +180,12 @@ def app_main():
             try:
                 ProtobufTlv.decode(msg, ret.content)
             except RuntimeError as exc:
-                print("Decoding Error", exc)
+                logging.fatal("Decoding Error %s", exc)
                 return "Decoding Error"
             rib_list = decode_route_list(msg.rib_entry)
             return render_template('route-list.html', rib_list=rib_list, **request.args.to_dict())
         else:
-            print("No response: route-list")
+            logging.info("No response: route-list")
             return "NFD is not running"
 
 
@@ -201,13 +207,13 @@ def app_main():
             try:
                 ProtobufTlv.decode(msg, ret.content)
             except RuntimeError as exc:
-                print("Decoding Error", exc)
+                logging.info("Decoding Error %s", exc)
                 return "Decoding Error"
             strategy_list = decode_strategy(msg.strategy_choice)
             return render_template('strategy-list.html', strategy_list=strategy_list,
                                    **request.args.to_dict())
         else:
-            print("No response: strategy-list")
+            logging.info("No response: strategy-list")
             return "NFD is not running"
 
 
@@ -220,10 +226,10 @@ def app_main():
         strategy = request.form['strategy']
         ret = run_until_complete(server.set_strategy(name, strategy))
         if ret is None:
-            print("No response")
+            logging.info("No response: set strategy")
             return redirect(url_for('strategy_list', st_code='-1', st_text='No response'))
         else:
-            print(ret['st_code'], ret['st_text'])
+            logging.info("Set strategy %s->%s %s %s", name, strategy, ret['st_code'], ret['st_text'])
             return redirect(url_for('strategy_list', st_code=ret['st_code'], st_text=ret['st_text']))
 
 
@@ -235,10 +241,10 @@ def app_main():
         name = request.form['name']
         ret = run_until_complete(server.unset_strategy(name))
         if ret is None:
-            print("No response")
+            logging.info("No response: unset strategy")
             return redirect(url_for('strategy_list', st_code='-1', st_text='No response'))
         else:
-            print(ret['st_code'], ret['st_text'])
+            logging.info("Unset strategy %s %s %s", name, ret['st_code'], ret['st_text'])
             return redirect(url_for('strategy_list', st_code=ret['st_code'], st_text=ret['st_text']))
 
 
@@ -340,7 +346,7 @@ def app_main():
                                    response_type=response_type,
                                    name=name)
         else:
-            print("No response: ndn-ping")
+            logging.info("No response: ndn-ping")
             return "NFD is not running"
 
 
