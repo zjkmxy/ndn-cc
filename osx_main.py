@@ -16,7 +16,7 @@ def normal_main():
             script_text = 'do shell script "{}" with administrator privileges'.format(cmd)
             os.spawnlp(os.P_NOWAIT, 'osascript', 'osascript', '-e', script_text)
         else:
-            os.spawnlp(os.P_NOWAIT, 'gksudo', 'gksudo', cmd)
+            os.spawnlp(os.P_NOWAIT, 'pkexec', 'pkexec', cmd)
 
     def setup(ico):
         ico.visible = True

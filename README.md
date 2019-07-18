@@ -3,6 +3,9 @@ Dependencies
 - Python 3.6
 - NodeJS (optional)
 
+- Ubuntu needs `sudo apt install budgie-indicator-applet` for tray icon
+
+
 Setup Development Environment
 =============================
 Python venv:
