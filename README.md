@@ -1,8 +1,6 @@
 Dependencies
 ============
 - Python 3.6
-- NodeJS (optional)
-
 - Ubuntu needs `sudo apt install budgie-indicator-applet` for tray icon
 
 
@@ -14,21 +12,16 @@ python3 -m venv ./venv
 ./venv/bin/python -m pip install -r requirements.txt
 ```
 
-Electron:
-```bash
-npm install
-```
-
 Execute
 =======
-Electron:
-```bash
-npm start
-```
-
-Python server:
+HTTP server:
 ```bash
 ./venv/bin/python app.py
+```
+
+Tray menu:
+```bash
+./venv/bin/python osx_main.py
 ```
 
 Generate OSX App
@@ -45,4 +38,7 @@ And then use `py2app`.
 . venv/bin/activate
 python setup.py py2app
 ```
-This application needs to be codesigned manually.
+This application needs to be codesigned manually. e.g.:
+```bash
+cd dist && codesign -s "49A5A463489463419387A5E55DA5D237D99DF4DE" NDNCC.app --deep --force
+```
