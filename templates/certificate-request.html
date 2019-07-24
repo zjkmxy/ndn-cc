@@ -1,3 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Certificate Request{% endblock %}
+{% block bodyhead %}
+  <h1>Certificate Request</h1>
+{% endblock %}
+{% block content %}
+  <table class="pure-table">
+    <caption>Known Certificate Servers</caption>
+    <thead>
+      <tr>
+        <th>CA Name</th>
+        <th>CA Info</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    {% set row_class = cycler('pure-table-odd', '') %}
+    {% for ca_entry in ca_list %}
+      <tr class="{{ row_class.next() }}">
+        <td>{{ ca_entry[0] }}</td>
+        <td>
+            {{ ca_entry[1] }}
+        </td>
+        <td>
+            <form action="/exec/ndncert-request" method="post">
+              <input type="hidden" name="name" value={{ ca_entry[0] }}>
+              <button type="submit">Request a cert</button>
+            </form>
+            <form action="/exec/remove-route" method="post">
+              <input type="hidden" name="name" value={{ ca_entry[0] }}>
+              <button type="submit">Remove</button>
+            </form>
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
+{% endblock %}
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,11 +60,11 @@
           {{ ca_entry[1] }}
       </td>
       <td>
-          <form action="../exec/ndncert-request" method="post">
+          <form action="/exec/ndncert-request" method="post">
             <input type="hidden" name="name" value={{ ca_entry[0] }}>
             <button type="submit">Request a cert</button>
           </form>
-          <form action="../exec/remove-route" method="post">
+          <form action="/exec/remove-route" method="post">
             <input type="hidden" name="name" value={{ ca_entry[0] }}>
             <button type="submit">Remove</button>
           </form>

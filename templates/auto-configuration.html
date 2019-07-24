@@ -1,14 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Auto Configuration</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/add-route.css') }}">
-</head>
-<body>
-<a href="exec/autoconf">Connect to NDN Testbed through the closest NDN router.</a><br>
-{% if msg %}
-  <p>{{ msg }}</p>
-{% endif %}
-</body>
-</html>
+{% extends "base.html" %}
+{% block title %}Auto Configuration{% endblock %}
+{% block head %}
+  {{ super() }}
+  <style type="text/css">
+    .center {
+      text-align: center;
+    }
+  </style>
+{% endblock %}
+{% block bodyhead %}
+  <h1>Auto Configuration</h1>
+{% endblock %}
+{% block content %}
+  <div class="center">
+    <a href="/exec/autoconf" class="pure-button pure-button-primary">Connect to NDN Testbed through the closest NDN router.</a>
+  </div>
+  {% if msg %}
+    <p class="center">{{ msg }}</p>
+  {% endif %}
+{% endblock %}

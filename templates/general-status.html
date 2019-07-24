@@ -1,23 +1,27 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>General Status</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/general-status.css') }}">
-</head>
-<body>
-  <table>
-    <caption>Forwarder General Status</caption>
-    <tr>
-      <th>Item</th>
-      <th>Value</th>
-    </tr>
-    {% for key, value in status.items() %}
-    <tr>
-      <td>{{ key|e }}</td>
-      <td>{{ value|e }}</td>
-    </tr>
-    {% endfor %}
+{% extends "base.html" %}
+{% block title %}General Status{% endblock %}
+{% block head %}
+  {{ super() }}
+{% endblock %}
+{% block bodyhead %}
+  <h1>Forwarder General Status</h1>
+{% endblock %}
+{% block content %}
+  <table class="pure-table">
+    <thead>
+      <tr>
+        <th>Item</th>
+        <th>Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% set row_class = cycler('pure-table-odd', '') %}
+      {% for key, value in status.items() %}
+      <tr class="{{ row_class.next() }}">
+        <td>{{ key|e }}</td>
+        <td>{{ value|e }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
   </table>
-</body>
-</html>
+{% endblock %}

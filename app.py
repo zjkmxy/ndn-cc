@@ -1,11 +1,11 @@
 import asyncio
-import subprocess
+import io
 import time
 import os
 import logging
 from datetime import datetime
 from ndncc.server import Server
-from flask import Flask, redirect, render_template, request, url_for
+from flask import Flask, redirect, render_template, request, url_for, send_file
 from flask_socketio import SocketIO
 from ndncc.asyncndn import fetch_data_packet, decode_dict, decode_list, decode_name, \
     decode_content_type, decode_nack_reason
@@ -31,6 +31,7 @@ def app_main():
     app.config['SECRET_KEY'] = '3mlf4j8um6mg2-qlhyzk4ngxxk$8t4hh&$r)%968koxd3i(j#f'
     socketio = SocketIO(app, async_mode='threading')
     server = Server.start_server(socketio.emit)
+    last_ping_data = b''
 
 
     def run_until_complete(event):
@@ -40,7 +41,8 @@ def app_main():
 
     @app.route('/')
     def index():
-        return render_template('index.html')
+        nfd_state = server.connection_test()
+        return render_template('index.html', refer_name='/', nfd_state=nfd_state)
 
 
     @app.route('/general-status')
@@ -64,17 +66,17 @@ def app_main():
             status = decode_dict(msg)
             status['start_timestamp'] = convert_time(status['start_timestamp'])
             status['current_timestamp'] = convert_time(status['current_timestamp'])
-            return render_template('general-status.html', name=name, status=status)
+            return render_template('general-status.html', refer_name='/general-status', name=name, status=status)
         else:
             logging.info("No response: general status")
-            return "NFD is not running"
+            return redirect('/')
 
 
     ### Face
     @app.route('/exec/add-face', methods=['POST'])
     def exec_addface():
         if not server.connection_test():
-            return "NFD is not running"
+            return redirect('/')
 
         uri = request.form['ip']
         ret = run_until_complete(server.add_face(uri))
@@ -87,7 +89,7 @@ def app_main():
     @app.route('/exec/remove-face', methods=['POST'])
     def exec_removeface():
         if not server.connection_test():
-            return "NFD is not running"
+            return redirect('/')
 
         face_id = int(request.form['face_id'])
         ret = run_until_complete(server.remove_face(face_id))
@@ -114,22 +116,22 @@ def app_main():
             face_list = decode_list(msg.face_status)
             fields = list(face_list[0].keys())
             fields_collapse = [field for field in set(fields) - {'face_id', 'uri'}]
-            return render_template('face-list.html', face_list=face_list,
+            return render_template('face-list.html', refer_name='/face-list', face_list=face_list,
                                    fields_collapse=fields_collapse, **request.args.to_dict())
         else:
             logging.info("No response: face-list")
-            return "NFD is not running"
+            return redirect('/')
 
     @app.route('/face-events')
     def face_events():
-        return render_template('face-events.html', event_list=server.event_list)
+        return render_template('face-events.html', refer_name='/face-events', event_list=server.event_list)
 
 
     ### Route
     @app.route('/exec/add-route', methods=['POST'])
     def exec_addroute():
         if not server.connection_test():
-            return "NFD is not running"
+            return redirect('/')
 
         name = request.form['name']
         try:
@@ -149,7 +151,7 @@ def app_main():
     @app.route('/exec/remove-route', methods=['POST'])
     def exec_removeroute():
         if not server.connection_test():
-            return "NFD is not running"
+            return redirect('/')
 
         name = request.form['name']
         face_id = int(request.form['face_id'])
@@ -183,10 +185,11 @@ def app_main():
                 logging.fatal("Decoding Error %s", exc)
                 return "Decoding Error"
             rib_list = decode_route_list(msg.rib_entry)
-            return render_template('route-list.html', rib_list=rib_list, **request.args.to_dict())
+            return render_template('route-list.html', refer_name='/route-list',
+                                   rib_list=rib_list, **request.args.to_dict())
         else:
             logging.info("No response: route-list")
-            return "NFD is not running"
+            return redirect('/')
 
 
     # Strategy
@@ -210,17 +213,19 @@ def app_main():
                 logging.info("Decoding Error %s", exc)
                 return "Decoding Error"
             strategy_list = decode_strategy(msg.strategy_choice)
-            return render_template('strategy-list.html', strategy_list=strategy_list,
+            return render_template('strategy-list.html',
+                                   refer_name='/strategy-list',
+                                   strategy_list=strategy_list,
                                    **request.args.to_dict())
         else:
             logging.info("No response: strategy-list")
-            return "NFD is not running"
+            return redirect('/')
 
 
     @app.route('/exec/set-strategy', methods=['POST'])
     def exec_set_strategy():
         if not server.connection_test():
-            return "NFD is not running"
+            return redirect('/')
 
         name = request.form['name']
         strategy = request.form['strategy']
@@ -236,7 +241,7 @@ def app_main():
     @app.route('/exec/unset-strategy', methods=['POST'])
     def exec_unset_strategy():
         if not server.connection_test():
-            return "NFD is not running"
+            return redirect('/')
 
         name = request.form['name']
         ret = run_until_complete(server.unset_strategy(name))
@@ -251,27 +256,29 @@ def app_main():
     ### Others
     @app.route('/auto-configuration')
     def auto_configuration():
-        return render_template('auto-configuration.html')
+        return render_template('auto-configuration.html',
+                               refer_name='/auto-configuration',
+                               **request.args.to_dict())
 
 
     @app.route('/exec/autoconf')
     def exec_autoconf():
         if not server.connection_test():
-            return "NFD is not running"
+            return redirect('/')
 
         ret, msg = run_until_complete(server.autoconf())
-        return render_template('auto-configuration.html', msg=msg)
+        return redirect(url_for('auto_configuration', msg=msg))
 
 
     @app.route('/certificate-request')
     def certificate_request():
-        return render_template('certificate-request.html')
+        return render_template('certificate-request.html', refer_name='/certificate-request')
 
 
     @app.route('/key-management')
     def key_management():
         key_tree = server.list_key_tree()
-        return render_template('key-management.html', key_tree=key_tree)
+        return render_template('key-management.html', refer_name='/key-management', key_tree=key_tree)
 
 
     @app.route('/ndnsec-delete')
@@ -295,11 +302,12 @@ def app_main():
 
     @app.route('/ndn-ping')
     def ndn_ping():
-        return render_template('ndn-ping.html')
+        return render_template('ndn-ping.html', refer_name='/ndn-ping', **request.args.to_dict())
 
 
     @app.route('/exec/ndn-ping', methods=['POST'])
     def exec_ndn_ping():
+        nonlocal last_ping_data
         name = request.form['name']
         can_be_prefix = request.form['can_be_prefix'] == 'true'
         must_be_fresh = request.form['must_be_fresh'] == 'true'
@@ -323,52 +331,45 @@ def app_main():
             freshness_period = "{:.3f}s".format(ret.metaInfo.freshnessPeriod / 1000.0)
             final_block_id = ret.metaInfo.finalBlockId.toEscapedString()
             signature_type = type(ret.signature).__name__
-            return render_template('ndn-ping.html',
-                                   response_time=response_time,
-                                   response_type=response_type,
-                                   name=name,
-                                   content_type=content_type,
-                                   freshness_period=freshness_period,
-                                   final_block_id=final_block_id,
-                                   signature_type=signature_type)
+            last_ping_data = ret.content.toBytes()
+            return redirect(url_for('ndn_ping',
+                                    response_time=response_time,
+                                    response_type=response_type,
+                                    name=name,
+                                    content_type=content_type,
+                                    freshness_period=freshness_period,
+                                    final_block_id=final_block_id,
+                                    signature_type=signature_type,
+                                    download='/download/ping-data'))
         elif isinstance(ret, NetworkNack):
             response_type = 'NetworkNack'
             reason = decode_nack_reason(ret.getReason())
-            return render_template('ndn-ping.html',
-                                   response_time=response_time,
-                                   response_type=response_type,
-                                   name=name,
-                                   reason=reason)
+            return redirect(url_for('ndn_ping',
+                                    response_time=response_time,
+                                    response_type=response_type,
+                                    name=name,
+                                    reason=reason))
         elif ret is None:
             response_type = 'Timeout'
-            return render_template('ndn-ping.html',
-                                   response_time=response_time,
-                                   response_type=response_type,
-                                   name=name)
+            return redirect(url_for('ndn_ping',
+                                    response_time=response_time,
+                                    response_type=response_type,
+                                    name=name))
         else:
             logging.info("No response: ndn-ping")
-            return "NFD is not running"
+            return redirect('/')
 
-
-    # NFD Management
-    @app.route('/nfd-management')
-    def nfd_management():
-        nfd_state = server.connection_test()
-        return render_template('nfd-management.html', nfd_state=nfd_state)
-
-
-    @app.route('/exec/start-nfd')
-    def start_nfd():
-        subprocess.run('nfd-start')
-        return redirect('/nfd-management')
-
-
-    @app.route('/exec/stop-nfd')
-    def stop_nfd():
-        subprocess.run('nfd-stop')
-        return redirect('/nfd-management')
+    @app.route('/download/ping-data')
+    def download_ping_data():
+        return send_file(
+            io.BytesIO(last_ping_data),
+            mimetype='application/octet-stream',
+            as_attachment=True,
+            attachment_filename='ping.data'
+            )
 
     socketio.run(app)
+
 
 if __name__ == '__main__':
     app_main()

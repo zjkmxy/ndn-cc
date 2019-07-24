@@ -1,37 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
+{% block title %}NDN Control Center{% endblock %}
+{% block head %}
+  {{ super() }}
+  <style type="text/css">
+    #green-text { color: green; }
+    #red-text { color: red; }
+    .center-text {
+      text-align: center;
+      font-size: xx-large;
+    }
+  </style>
+{% endblock %}
+{% block bodyhead %}
+  <h1>NDN Control Center</h1>
+{% endblock %}
+{% block content %}
+  {% if nfd_state %}
+    <div id="green-text" class="center-text">NFD is running.</div>
+  {% else %}
+    <div id="red-text" class="center-text">NFD is not running.</div>
+  {% endif %}
+{% endblock %}
 
-<head>
-  <meta charset="utf-8">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
-  <script src="{{ url_for('static', filename='scripts/index.js') }}"></script>
-</head>
-
-<body>
-  <div class="container">
-    <div class="menu">
-      <img class="logo" src="{{ url_for('static', filename='img/logo.png') }}">
-      <h2 class="title">NDN Control Center</h2>
-      <input type="text" id="menu_search" onkeyup="do_menu_search()" placeholder="Search ..." title="Type in a category">
-      <div id="div_menu_items">
-        <!--<input type="button" value="NFD Process Management" onclick="set_content('http://localhost:5000/nfd-management')">-->
-        <input type="button" value="Status" onclick="set_content('http://localhost:5000/general-status')">
-        <input type="button" value="Face List" onclick="set_content('http://localhost:5000/face-list')">
-        <input type="button" value="Route List" onclick="set_content('http://localhost:5000/route-list')">
-        <input type="button" value="Strategy List" onclick="set_content('http://localhost:5000/strategy-list')">
-        <input type="button" value="Face Events" onclick="set_content('http://localhost:5000/face-events')">
-        <input type="button" value="Auto Configuration" onclick="set_content('http://localhost:5000/auto-configuration')">
-        <input type="button" value="Certificate Request" onclick="set_content('http://localhost:5000/certificate-request')">
-        <input type="button" value="Key Management" onclick="set_content('http://localhost:5000/key-management')">
-        <input type="button" value="NDN Ping" onclick="set_content('http://localhost:5000/ndn-ping')">
-      </div>
-    </div>
-
-    <div class="content">
-      <iframe id="content_frame" height="100%" width="100%" style="border:1px solid gray;" 
-              src="http://localhost:5000/general-status"></iframe>
-    </div>
-  </div>
-</body>
-
-</html>

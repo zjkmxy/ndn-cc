@@ -1,46 +1,61 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Route List</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/route-list.css') }}">
-</head>
-<body>
-  <h1>{{ name|e }}</h1>
-  <table>
-    <caption>Route Lists</caption>
-    <tr>
-      <th>Name</th>
-      <th>Route</th>
-    </tr>
-    {% for rib_entry in rib_list %}
-    <tr>
-      <td>{{ rib_entry[0] }}</td>
-      <td>
-        {% for route in rib_entry[1] %}
-          <table>
-            <tr>
-              {% for field in route.keys() %}
-                <th>{{ field|e }}</th>
-              {%  endfor %}
-            </tr>
-            <tr>
-              {% for field in route.keys() %}
-                <td>{{ route[field]|e }}</td>
-              {%  endfor %}
-            </tr>
+{% extends "base.html" %}
+{% block title %}Route List{% endblock %}
+{% block head %}
+  {{ super() }}
+{% endblock %}
+{% block bodyhead %}
+  <h1>Route List</h1>
+{% endblock %}
+{% block content %}
+  <table class="pure-table pure-table-bordered">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Route</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for rib_entry in rib_list %}
+      <tr>
+        <td>{{ rib_entry[0] }}</td>
+        <td>
+          <table class="pure-table pure-table-bordered">
+            <thead>
+              <tr>
+                <th>Face ID</th>
+                <th>Origin</th>
+                <th>Cost</th>
+                <th>Flags</th>
+                <th>Exp Period</th>
+                <th>Delete</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% set row_class = cycler('pure-table-odd', '') %}
+              {% for route in rib_entry[1] %}
+                <tr class="{{ row_class.next() }}">
+                  <td>{{ route['face_id']|e }}</td>
+                  <td>{{ route['origin']|e }}</td>
+                  <td>{{ route['cost']|e }}</td>
+                  <td>{{ route['flags']|e }}</td>
+                  <td>{{ route['exp_period']|e }}</td>
+                  <td>
+                    <form action="/exec/remove-route" method="post">
+                      <input type="hidden" name="name" value={{ rib_entry[0] }}>
+                      <input type="hidden" name="face_id" value={{ route["face_id"] }}>
+                      <button type="submit">Remove</button>
+                    </form>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
           </table>
-          <form action="../exec/remove-route" method="post">
-            <input type="hidden" name="name" value={{ rib_entry[0] }}>
-            <input type="hidden" name="face_id" value={{ route["face_id"] }}>
-            <button type="submit">Remove</button>
-          </form>
-        {% endfor %}
-      </td>
-    </tr>
-    {% endfor %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
   </table>
-  <form action="../exec/add-route" method="post">
+  <form action="/exec/add-route" method="post">
     <p>
       <label for="name">Prefix</label>
       <input type="text" name="name" id="name"/>
@@ -56,5 +71,4 @@
   {% if st_code %}
     <p>{{ st_code }} {{ st_text }}</p>
   {% endif %}
-</body>
-</html>
+{% endblock %}
