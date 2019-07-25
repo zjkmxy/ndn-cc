@@ -327,9 +327,18 @@ def app_main():
         if isinstance(ret, Data):
             response_type = 'Data'
             name = ret.name.toUri()
-            content_type = decode_content_type(ret.metaInfo.type)
-            freshness_period = "{:.3f}s".format(ret.metaInfo.freshnessPeriod / 1000.0)
-            final_block_id = ret.metaInfo.finalBlockId.toEscapedString()
+            if ret.metaInfo.type is not None:
+                content_type = decode_content_type(ret.metaInfo.type)
+            else:
+                content_type = "None"
+            if ret.metaInfo.freshnessPeriod is not None:
+                freshness_period = "{:.3f}s".format(ret.metaInfo.freshnessPeriod / 1000.0)
+            else:
+                freshness_period = "None"
+            if ret.metaInfo.finalBlockId is not None:
+                final_block_id = ret.metaInfo.finalBlockId.toEscapedString()
+            else:
+                final_block_id = "None"
             signature_type = type(ret.signature).__name__
             last_ping_data = ret.content.toBytes()
             return redirect(url_for('ndn_ping',
