@@ -20,9 +20,9 @@
 
   <div id="menu">
     <div class="pure-menu">
-      <a class="pure-menu-heading" href="#">NDN Control Center</a>
+      <a class="pure-menu-heading" href="/">NDN Control Center</a>
       <form class="pure-form">
-        <input type="text" id="menu_search" class="pure-input-1" onkeyup="do_menu_search()" placeholder="Search ..." title="Type in a keyword">
+        <input type="text" id="menu_search" class="pure-input-1" onkeyup="do_menu_search()" onkeydown="return event.key != 'Enter';" placeholder="Search ..." title="Type in a keyword">
       </form>
 
       <ul id="div_menu_items" class="pure-menu-list">

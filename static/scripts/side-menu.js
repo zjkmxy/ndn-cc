@@ -54,10 +54,6 @@ function do_menu_search() {
 
     for (var i = 0; i < buttons.length; i++) {
         var item = buttons[i].getElementsByClassName("pure-menu-link");
-        if (item[0].childNodes[0].textContent.toUpperCase().indexOf(filter) > -1) {
-            buttons[i].style.display = "";
-        } else {
-            buttons[i].style.display = "hidden";
-        }
+        buttons[i].hidden = item[0].childNodes[0].textContent.toUpperCase().indexOf(filter) <= -1;
     }
 }
