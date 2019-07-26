@@ -82,6 +82,7 @@ def app_main():
         ret = run_until_complete(server.add_face(uri))
         if ret is None:
             logging.info("No response: add face")
+            ret = {'st_code': -1, 'st_text': 'No response'}
         else:
             logging.info("Add face %s %s %s", uri, ret['st_code'], ret['st_text'])
         return redirect(url_for('face_list', st_code=ret['st_code'], st_text=ret['st_text']))
@@ -95,6 +96,7 @@ def app_main():
         ret = run_until_complete(server.remove_face(face_id))
         if ret is None:
             logging.info("No response: remove face")
+            ret = {'st_code': -1, 'st_text': 'No response'}
         else:
             logging.info("Remove face %s %s %s", face_id, ret['st_code'], ret['st_text'])
         return redirect(url_for('face_list', st_code=ret['st_code'], st_text=ret['st_text']))
@@ -144,6 +146,7 @@ def app_main():
         ret = run_until_complete(server.add_route(name, face_id))
         if ret is None:
             logging.info("No response: add route")
+            ret = {'st_code': -1, 'st_text': 'No response'}
         else:
             logging.info("Add route %s->%s %s %s", name, face_id, ret['st_code'], ret['st_text'])
         return redirect(url_for('route_list', st_code=ret['st_code'], st_text=ret['st_text']))
@@ -158,6 +161,7 @@ def app_main():
         ret = run_until_complete(server.remove_route(name, face_id))
         if ret is None:
             logging.info("No response: remove route")
+            ret = {'st_code': -1, 'st_text': 'No response'}
         else:
             logging.info("Remove route %s->%s %s %s", name, face_id, ret['st_code'], ret['st_text'])
         return redirect(url_for('route_list', st_code=ret['st_code'], st_text=ret['st_text']))
