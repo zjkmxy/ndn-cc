@@ -29,7 +29,7 @@ def app_main():
                 template_folder=os.path.join(base_path, 'templates'))
 
     app.config['SECRET_KEY'] = '3mlf4j8um6mg2-qlhyzk4ngxxk$8t4hh&$r)%968koxd3i(j#f'
-    socketio = SocketIO(app, async_mode='threading')
+    socketio = SocketIO(app, async_mode='gevent')
     server = Server.start_server(socketio.emit)
     last_ping_data = b''
 

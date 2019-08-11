@@ -33,9 +33,15 @@ OPTIONS = {'argv_emulation': True,
                'ndncc',
                'engineio.async_drivers.threading',
                'jinja2.ext',
+
+               'gevent',
+               'greenlet',
+               'engineio.async_gevent',
+               'engineio.async_drivers.gevent',
                ],
            'packages': [
                'Pillow',
+               'gevent',
            ],
            'plist': {
                'CFBundleIdentifier': "com.ndn.ndncc",
