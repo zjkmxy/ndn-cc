@@ -48,7 +48,8 @@ OPTIONS = {'argv_emulation': True,
                'CFBundleName': "NDNCC",
                'CFBundleVersion': '1001',
                'CFBundleShortVersionString': '1.0',
-               'NSHumanReadableCopyright': 'Copyright 2019 NDN team'
+               'NSHumanReadableCopyright': 'Copyright 2019 NDN team',
+               'LSBackgroundOnly': 'true'
            }
           }
 

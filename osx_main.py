@@ -7,10 +7,6 @@ from threading import Thread
 
 
 def normal_main():
-    app_thread = Thread(target=app_main)
-    app_thread.daemon = True
-    app_thread.start()
-
     def sudo_execute(cmd):
         if platform == "darwin":
             script_text = 'do shell script "{}" with administrator privileges'.format(cmd)
@@ -48,6 +44,10 @@ def normal_main():
     icon = pystray.Icon('ndncc', menu=menu)
     img = Image.open('ndn_app.png')
     icon.icon = img
+
+    app_thread = Thread(target=app_main)
+    app_thread.daemon = True
+    app_thread.start()
 
     icon.run(setup)
 

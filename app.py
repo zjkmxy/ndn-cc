@@ -13,9 +13,13 @@ from pyndn import Interest, Data, NetworkNack
 from ndncc.nfd_face_mgmt_pb2 import GeneralStatus, FaceStatusMessage, RibStatusMessage, \
     StrategyChoiceMessage
 from pyndn.encoding import ProtobufTlv
+from gevent.event import AsyncResult
 
 
 def app_main():
+    from gevent.monkey import patch_all
+    patch_all(ssl=False)
+
     logging.basicConfig(format='[{asctime}]{levelname}:{message}',
                         datefmt='%Y-%m-%d %H:%M:%S',
                         level=logging.INFO,
@@ -33,10 +37,35 @@ def app_main():
     server = Server.start_server(socketio.emit)
     last_ping_data = b''
 
-
     def run_until_complete(event):
+        done = AsyncResult()
+
+        async def run_event():
+            nonlocal done
+            done.set(await event)
+
         asyncio.set_event_loop(asyncio.new_event_loop())
-        return asyncio.get_event_loop().run_until_complete(event)
+        asyncio.get_event_loop().create_task(run_event())
+        return done.get()
+
+    # def run_until_complete_2(event):
+    #     ret = None
+    #     done = threading.Event()
+    #
+    #     def subthread_main():
+    #         nonlocal ret, done
+    #         asyncio.set_event_loop(asyncio.new_event_loop())
+    #         ret = asyncio.get_event_loop().run_until_complete(event)
+    #         done.set()
+    #
+    #     app_thread = threading.Thread(target=subthread_main)
+    #     app_thread.daemon = True
+    #     app_thread.start()
+    #     due = False
+    #     while not due:
+    #         due = done.wait(0.01)
+    #         gevent.sleep(0)
+    #     return ret
 
 
     @app.route('/')
