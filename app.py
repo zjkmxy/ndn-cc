@@ -8,7 +8,6 @@ from datetime import datetime
 from ndncc.server import Server
 from flask import Flask, redirect, render_template, request, url_for, send_file
 from flask_socketio import SocketIO
-from gevent.event import AsyncResult
 from ndn.encoding import is_binary_str, Name, Component
 from ndn.types import InterestCanceled, InterestTimeout, InterestNack, ValidationFailure
 from ndn.app_support.nfd_mgmt import GeneralStatus, FaceStatusMsg, RibStatus, StrategyChoiceMsg
@@ -25,12 +24,12 @@ def decode_dict(msg) -> Dict[str, str]:
 
 
 def app_main():
-    from gevent.monkey import patch_all
-    patch_all(ssl=False)
+    # from gevent.monkey import patch_all
+    # patch_all(ssl=False)
 
     logging.basicConfig(format='[{asctime}]{levelname}:{message}',
                         datefmt='%Y-%m-%d %H:%M:%S',
-                        level=logging.INFO,
+                        level=logging.DEBUG,
                         style='{')
 
     base_path = os.getcwd()
@@ -47,15 +46,11 @@ def app_main():
     last_ping_data = b''
 
     def run_until_complete(event):
-        done = AsyncResult()
-
-        async def run_event():
-            nonlocal done
-            done.set(await event)
-
         asyncio.set_event_loop(asyncio.new_event_loop())
-        asyncio.get_event_loop().create_task(run_event())
-        return done.get()
+        return asyncio.get_event_loop().run_until_complete(event)
+
+    async def delayed_express(func, *args, **kwargs):
+        return await func(*args, **kwargs)
 
     @app.route('/')
     def index():
@@ -70,7 +65,7 @@ def app_main():
 
         name = "/localhost/nfd/status/general"
         try:
-            _, _, data = run_until_complete(server.app.express_interest(
+            _, _, data = run_until_complete(delayed_express(server.app.express_interest,
                 name, lifetime=1000, can_be_prefix=True, must_be_fresh=True))
         except (InterestCanceled, InterestTimeout, InterestNack, ValidationFailure):
             logging.info("No response: general status")
@@ -87,7 +82,7 @@ def app_main():
             return redirect('/')
 
         uri = request.form['ip']
-        ret = run_until_complete(server.add_face(uri))
+        ret = run_until_complete(delayed_express(server.add_face, uri))
         if ret is None:
             logging.info("No response: add face")
             ret = {'status_code': -1, 'status_text': 'No response'}
@@ -101,7 +96,7 @@ def app_main():
             return redirect('/')
 
         face_id = int(request.form['face_id'])
-        ret = run_until_complete(server.remove_face(face_id))
+        ret = run_until_complete(delayed_express(server.remove_face, face_id))
         if ret is None:
             logging.info("No response: remove face")
             ret = {'status_code': -1, 'status_text': 'No response'}
@@ -119,7 +114,7 @@ def app_main():
 
         name = "/localhost/nfd/faces/list"
         try:
-            _, _, data = run_until_complete(server.app.express_interest(
+            _, _, data = run_until_complete(delayed_express(server.app.express_interest,
                 name, lifetime=1000, can_be_prefix=True, must_be_fresh=True))
         except (InterestCanceled, InterestTimeout, InterestNack, ValidationFailure):
             logging.info("No response: face-list")
@@ -148,7 +143,7 @@ def app_main():
                                     st_code='-1',
                                     st_text='Invalid number {}'.format(request.form['face_id'])))
 
-        ret = run_until_complete(server.add_route(name, face_id))
+        ret = run_until_complete(delayed_express(server.add_route, name, face_id))
         if ret is None:
             logging.info("No response: add route")
             ret = {'status_code': -1, 'status_text': 'No response'}
@@ -163,12 +158,12 @@ def app_main():
 
         name = request.form['name']
         face_id = int(request.form['face_id'])
-        ret = run_until_complete(server.remove_route(name, face_id))
+        ret = run_until_complete(delayed_express(server.remove_route, name, face_id))
         if ret is None:
             logging.info("No response: remove route")
             ret = {'status_code': -1, 'status_text': 'No response'}
         else:
-            logging.info("Remove route %s->%s %s %s", name, face_id, ret['status_code'], rext['status_text'])
+            logging.info("Remove route %s->%s %s %s", name, face_id, ret['status_code'], ret['status_text'])
         return redirect(url_for('route_list', st_code=ret['status_code'], st_text=ret['status_text']))
 
     @app.route('/route-list')
@@ -183,7 +178,7 @@ def app_main():
 
         name = "/localhost/nfd/rib/list"
         try:
-            _, _, data = run_until_complete(server.app.express_interest(
+            _, _, data = run_until_complete(delayed_express(server.app.express_interest,
                 name, lifetime=1000, can_be_prefix=True, must_be_fresh=True))
         except (InterestCanceled, InterestTimeout, InterestNack, ValidationFailure):
             logging.info("No response: route-list")
@@ -203,7 +198,7 @@ def app_main():
 
         name = "/localhost/nfd/strategy-choice/list"
         try:
-            _, _, data = run_until_complete(server.app.express_interest(
+            _, _, data = run_until_complete(delayed_express(server.app.express_interest,
                 name, lifetime=1000, can_be_prefix=True, must_be_fresh=True))
         except (InterestCanceled, InterestTimeout, InterestNack, ValidationFailure):
             logging.info("No response: strategy-list")
@@ -222,7 +217,7 @@ def app_main():
 
         name = request.form['name']
         strategy = request.form['strategy']
-        ret = run_until_complete(server.set_strategy(name, strategy))
+        ret = run_until_complete(delayed_express(server.set_strategy, name, strategy))
         if ret is None:
             logging.info("No response: set strategy")
             return redirect(url_for('strategy_list', st_code='-1', st_text='No response'))
@@ -236,7 +231,7 @@ def app_main():
             return redirect('/')
 
         name = request.form['name']
-        ret = run_until_complete(server.unset_strategy(name))
+        ret = run_until_complete(delayed_express(server.unset_strategy, name))
         if ret is None:
             logging.info("No response: unset strategy")
             return redirect(url_for('strategy_list', st_code='-1', st_text='No response'))
@@ -255,7 +250,7 @@ def app_main():
         if not server.connection_test():
             return redirect('/')
 
-        ret, msg = run_until_complete(server.autoconf())
+        ret, msg = run_until_complete(delayed_express(server.autoconf))
         return redirect(url_for('auto_configuration', msg=msg))
 
     @app.route('/certificate-request')
@@ -329,7 +324,7 @@ def app_main():
 
         st_time = time.time()
         try:
-            data_name, meta_info, data = run_until_complete(server.app.express_interest(
+            data_name, meta_info, data = run_until_complete(delayed_express(server.app.express_interest,
                 name,
                 validator=validator,
                 lifetime=int(interest_lifetime),

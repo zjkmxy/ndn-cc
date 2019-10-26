@@ -87,8 +87,8 @@ class Server:
             ret['face_event_kind'] = "unknown"
 
         ret['face_id'] = str(event.event.face_id)
-        ret['local_uri'] = event.event.local_uri.decode("utf-8")
-        ret['remote_uri'] = event.event.uri.decode("utf-8")
+        ret['local_uri'] = bytes(event.event.local_uri).decode("utf-8")
+        ret['remote_uri'] = bytes(event.event.uri).decode("utf-8")
 
         if event.event.face_scope == 1:
             ret['face_scope'] = "local"
