@@ -1,13 +1,14 @@
 import asyncio
-import io
 import time
 import os
 import logging
 from typing import Dict
 from datetime import datetime
+from aiohttp import web
+import socketio
+import aiohttp_jinja2
+import jinja2
 from ndncc.server import Server
-from flask import Flask, redirect, render_template, request, url_for, send_file
-from flask_socketio import SocketIO
 from ndn.encoding import is_binary_str, Name, Component
 from ndn.types import InterestCanceled, InterestTimeout, InterestNack, ValidationFailure
 from ndn.app_support.nfd_mgmt import GeneralStatus, FaceStatusMsg, RibStatus, StrategyChoiceMsg
@@ -34,78 +35,86 @@ def app_main():
 
     base_path = os.getcwd()
     # Serve static content from /static
-    app = Flask(__name__,
-                static_url_path='/static',
-                static_folder=os.path.join(base_path, 'static'),
-                template_folder=os.path.join(base_path, 'templates'))
+    sio = socketio.AsyncServer(async_mode='aiohttp')
+    app = web.Application()
+    aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader(os.path.join(base_path, 'templates')))
+    sio.attach(app)
+    app.router.add_static(prefix='/static', path=os.path.join(base_path, 'static'))
+    routes = web.RouteTableDef()
+    # app = Flask(__name__,
+    #             static_url_path='/static',
+    #             static_folder=os.path.join(base_path, 'static'),
+    #             template_folder=os.path.join(base_path, 'templates'))
 
-    app.config['SECRET_KEY'] = '3mlf4j8um6mg2-qlhyzk4ngxxk$8t4hh&$r)%968koxd3i(j#f'
+    # app.config['SECRET_KEY'] = '3mlf4j8um6mg2-qlhyzk4ngxxk$8t4hh&$r)%968koxd3i(j#f'
     # socketio = SocketIO(app, async_mode='gevent')
-    socketio = SocketIO(app, async_mode='threading')
-    server = Server.start_server(socketio.emit)
+    # socketio = SocketIO(app, async_mode='threading')
+    # server = Server.start_server(sio.emit)
+    server = Server(sio.emit)
     last_ping_data = b''
 
-    def run_until_complete(event):
-        asyncio.set_event_loop(asyncio.new_event_loop())
-        return asyncio.get_event_loop().run_until_complete(event)
+    def render_template(template_name, request, **kwargs):
+        return aiohttp_jinja2.render_template(template_name, request, context=kwargs)
 
-    async def delayed_express(func, *args, **kwargs):
-        return await func(*args, **kwargs)
+    def redirect(route_name, request, **kwargs):
+        raise web.HTTPFound(request.app.router[route_name].url_for().with_query(kwargs))
 
-    @app.route('/')
-    def index():
+    @routes.get('/')
+    async def index(request):
         nfd_state = server.connection_test()
-        return render_template('index.html', refer_name='/', nfd_state=nfd_state)
+        return render_template('index.html', request, refer_name='/', nfd_state=nfd_state)
 
-    @app.route('/general-status')
-    def general_status():
+    @routes.get('/general-status')
+    async def general_status(request):
         def convert_time(timestamp):
             ret = datetime.fromtimestamp(float(timestamp) / 1000.0)
             return str(ret)
 
         name = "/localhost/nfd/status/general"
         try:
-            _, _, data = run_until_complete(delayed_express(server.app.express_interest,
-                name, lifetime=1000, can_be_prefix=True, must_be_fresh=True))
+            _, _, data = await server.app.express_interest(
+                name, lifetime=1000, can_be_prefix=True, must_be_fresh=True)
         except (InterestCanceled, InterestTimeout, InterestNack, ValidationFailure):
             logging.info("No response: general status")
-            return redirect('/')
+            raise web.HTTPFound('/')
         msg = GeneralStatus.parse(data)
         status = decode_dict(msg)
         status['start_timestamp'] = convert_time(status['start_timestamp'])
         status['current_timestamp'] = convert_time(status['current_timestamp'])
-        return render_template('general-status.html', refer_name='/general-status', name=name, status=status)
+        return render_template('general-status.html', request, refer_name='/general-status', name=name, status=status)
 
-    @app.route('/exec/add-face', methods=['POST'])
-    def exec_addface():
+    @routes.post('/exec/add-face')
+    async def exec_addface(request):
         if not server.connection_test():
-            return redirect('/')
+            raise web.HTTPFound('/')
 
-        uri = request.form['ip']
-        ret = run_until_complete(delayed_express(server.add_face, uri))
+        form = await request.post()
+        uri = form['ip']
+        ret = await server.add_face(uri)
         if ret is None:
             logging.info("No response: add face")
             ret = {'status_code': -1, 'status_text': 'No response'}
         else:
             logging.info("Add face %s %s %s", uri, ret['status_code'], ret['status_text'])
-        return redirect(url_for('face_list', st_code=ret['status_code'], st_text=ret['status_text']))
+        return redirect('face_list', request, st_code=ret['status_code'], st_text=ret['status_text'])
 
-    @app.route('/exec/remove-face', methods=['POST'])
-    def exec_removeface():
+    @routes.post('/exec/remove-face')
+    async def exec_removeface(request):
         if not server.connection_test():
-            return redirect('/')
+            raise web.HTTPFound('/')
 
-        face_id = int(request.form['face_id'])
-        ret = run_until_complete(delayed_express(server.remove_face, face_id))
+        form = await request.post()
+        face_id = int(form['face_id'])
+        ret = await server.remove_face(face_id)
         if ret is None:
             logging.info("No response: remove face")
             ret = {'status_code': -1, 'status_text': 'No response'}
         else:
             logging.info("Remove face %s %s %s", face_id, ret['status_code'], ret['status_text'])
-        return redirect(url_for('face_list', st_code=ret['status_code'], st_text=ret['status_text']))
+        return redirect('face_list', request, st_code=ret['status_code'], st_text=ret['status_text'])
 
-    @app.route('/face-list')
-    def face_list():
+    @routes.get('/face-list', name='face_list')
+    async def face_list(request):
         def decode_to_str(dic):
             for k, v in dic.items():
                 if isinstance(v, bytes):
@@ -114,60 +123,60 @@ def app_main():
 
         name = "/localhost/nfd/faces/list"
         try:
-            _, _, data = run_until_complete(delayed_express(server.app.express_interest,
-                name, lifetime=1000, can_be_prefix=True, must_be_fresh=True))
+            _, _, data = await server.app.express_interest(
+                name, lifetime=1000, can_be_prefix=True, must_be_fresh=True)
         except (InterestCanceled, InterestTimeout, InterestNack, ValidationFailure):
             logging.info("No response: face-list")
-            return redirect('/')
+            raise web.HTTPFound('/')
         msg = FaceStatusMsg.parse(data)
         face_list = [decode_to_str(fs.asdict()) for fs in msg.face_status]
         fields = list(face_list[0].keys())
         fields_collapse = [field for field in set(fields) - {'face_id', 'uri'}]
-        return render_template('face-list.html', refer_name='/face-list', face_list=face_list,
-                               fields_collapse=fields_collapse, **request.args.to_dict())
+        return render_template('face-list.html', request, refer_name='/face-list', face_list=face_list,
+                               fields_collapse=fields_collapse, **request.query)
 
-    @app.route('/face-events')
-    def face_events():
-        return render_template('face-events.html', refer_name='/face-events', event_list=server.event_list)
+    @routes.get('/face-events')
+    async def face_events(request):
+        return render_template('face-events.html', request, refer_name='/face-events', event_list=server.event_list)
 
-    @app.route('/exec/add-route', methods=['POST'])
-    def exec_addroute():
+    @routes.post('/exec/add-route')
+    async def exec_addroute(request):
         if not server.connection_test():
-            return redirect('/')
+            raise web.HTTPFound('/')
 
-        name = request.form['name']
+        form = await request.post()
+        name = form['name']
         try:
-            face_id = int(request.form['face_id'])
+            face_id = int(form['face_id'])
         except ValueError:
-            return redirect(url_for('route_list',
-                                    st_code='-1',
-                                    st_text='Invalid number {}'.format(request.form['face_id'])))
+            return redirect('route_list', request, st_code='-1', st_text=f'Invalid number {form["face_id"]}')
 
-        ret = run_until_complete(delayed_express(server.add_route, name, face_id))
+        ret = await server.add_route(name, face_id)
         if ret is None:
             logging.info("No response: add route")
             ret = {'status_code': -1, 'status_text': 'No response'}
         else:
             logging.info("Add route %s->%s %s %s", name, face_id, ret['status_code'], ret['status_text'])
-        return redirect(url_for('route_list', st_code=ret['status_code'], st_text=ret['status_text']))
+        return redirect('route_list', request, st_code=ret['status_code'], st_text=ret['status_text'])
 
-    @app.route('/exec/remove-route', methods=['POST'])
-    def exec_removeroute():
+    @routes.post('/exec/remove-route')
+    async def exec_removeroute(request):
         if not server.connection_test():
-            return redirect('/')
+            raise web.HTTPFound('/')
 
-        name = request.form['name']
-        face_id = int(request.form['face_id'])
-        ret = run_until_complete(delayed_express(server.remove_route, name, face_id))
+        form = await request.post()
+        name = form['name']
+        face_id = int(form['face_id'])
+        ret = await server.remove_route(name, face_id)
         if ret is None:
             logging.info("No response: remove route")
             ret = {'status_code': -1, 'status_text': 'No response'}
         else:
             logging.info("Remove route %s->%s %s %s", name, face_id, ret['status_code'], ret['status_text'])
-        return redirect(url_for('route_list', st_code=ret['status_code'], st_text=ret['status_text']))
+        return redirect('route_list', request, st_code=ret['status_code'], st_text=ret['status_text'])
 
-    @app.route('/route-list')
-    def route_list():
+    @routes.get('/route-list', name='route_list')
+    async def route_list(request):
         def decode_route_list(msg):
             ret = []
             for item in msg:
@@ -178,18 +187,18 @@ def app_main():
 
         name = "/localhost/nfd/rib/list"
         try:
-            _, _, data = run_until_complete(delayed_express(server.app.express_interest,
-                name, lifetime=1000, can_be_prefix=True, must_be_fresh=True))
+            _, _, data = await server.app.express_interest(
+                name, lifetime=1000, can_be_prefix=True, must_be_fresh=True)
         except (InterestCanceled, InterestTimeout, InterestNack, ValidationFailure):
             logging.info("No response: route-list")
-            return redirect('/')
+            raise web.HTTPFound('/')
         msg = RibStatus.parse(data)
         rib_list = decode_route_list(msg.asdict()['entries'])
-        return render_template('route-list.html', refer_name='/route-list',
-                               rib_list=rib_list, **request.args.to_dict())
+        return render_template('route-list.html', request, refer_name='/route-list',
+                               rib_list=rib_list, **request.query)
 
-    @app.route('/strategy-list')
-    def strategy_list():
+    @routes.get('/strategy-list', name='strategy_list')
+    async def strategy_list(request):
         def decode_strategy(msg):
             return [{
                 "name": Name.to_str(item.name),
@@ -198,93 +207,99 @@ def app_main():
 
         name = "/localhost/nfd/strategy-choice/list"
         try:
-            _, _, data = run_until_complete(delayed_express(server.app.express_interest,
-                name, lifetime=1000, can_be_prefix=True, must_be_fresh=True))
+            _, _, data = await server.app.express_interest(
+                name, lifetime=1000, can_be_prefix=True, must_be_fresh=True)
         except (InterestCanceled, InterestTimeout, InterestNack, ValidationFailure):
             logging.info("No response: strategy-list")
-            return redirect('/')
+            raise web.HTTPFound('/')
         msg = StrategyChoiceMsg.parse(data)
         strategy_list = decode_strategy(msg.strategy_choices)
         return render_template('strategy-list.html',
+                               request,
                                refer_name='/strategy-list',
                                strategy_list=strategy_list,
-                               **request.args.to_dict())
+                               **request.query)
 
-    @app.route('/exec/set-strategy', methods=['POST'])
-    def exec_set_strategy():
+    @routes.post('/exec/set-strategy')
+    async def exec_set_strategy(request):
         if not server.connection_test():
-            return redirect('/')
+            raise web.HTTPFound('/')
 
-        name = request.form['name']
-        strategy = request.form['strategy']
-        ret = run_until_complete(delayed_express(server.set_strategy, name, strategy))
+        form = await request.post()
+        name = form['name']
+        strategy = form['strategy']
+        ret = await server.set_strategy(name, strategy)
         if ret is None:
             logging.info("No response: set strategy")
-            return redirect(url_for('strategy_list', st_code='-1', st_text='No response'))
+            return redirect('strategy_list', request, st_code='-1', st_text='No response')
         else:
             logging.info("Set strategy %s->%s %s %s", name, strategy, ret['status_code'], ret['status_text'])
-            return redirect(url_for('strategy_list', st_code=ret['status_code'], st_text=ret['status_text']))
+            return redirect('strategy_list', request, st_code=ret['status_code'], st_text=ret['status_text'])
 
-    @app.route('/exec/unset-strategy', methods=['POST'])
-    def exec_unset_strategy():
+    @routes.post('/exec/unset-strategy')
+    async def exec_unset_strategy(request):
         if not server.connection_test():
-            return redirect('/')
+            raise web.HTTPFound('/')
 
-        name = request.form['name']
-        ret = run_until_complete(delayed_express(server.unset_strategy, name))
+        form = await request.post()
+        name = form['name']
+        ret = await server.unset_strategy(name)
         if ret is None:
             logging.info("No response: unset strategy")
-            return redirect(url_for('strategy_list', st_code='-1', st_text='No response'))
+            return redirect('strategy_list', request, st_code='-1', st_text='No response')
         else:
             logging.info("Unset strategy %s %s %s", name, ret['status_code'], ret['status_text'])
-            return redirect(url_for('strategy_list', st_code=ret['status_code'], st_text=ret['status_text']))
+            return redirect('strategy_list', request, st_code=ret['status_code'], st_text=ret['status_text'])
 
-    @app.route('/auto-configuration')
-    def auto_configuration():
+    @routes.get('/auto-configuration', name='auto_configuration')
+    async def auto_configuration(request):
         return render_template('auto-configuration.html',
+                               request,
                                refer_name='/auto-configuration',
-                               **request.args.to_dict())
+                               **request.query)
 
-    @app.route('/exec/autoconf')
-    def exec_autoconf():
+    @routes.get('/exec/autoconf')
+    async def exec_autoconf(request):
         if not server.connection_test():
-            return redirect('/')
+            raise web.HTTPFound('/')
 
-        ret, msg = run_until_complete(delayed_express(server.autoconf))
-        return redirect(url_for('auto_configuration', msg=msg))
+        ret, msg = await server.autoconf()
+        return redirect('auto_configuration', request, msg=msg)
 
-    @app.route('/certificate-request')
-    def certificate_request():
-        return render_template('certificate-request.html', refer_name='/certificate-request')
+    @routes.get('/certificate-request')
+    async def certificate_request(request):
+        return render_template('certificate-request.html', request, refer_name='/certificate-request')
 
-    @app.route('/key-management')
-    def key_management():
+    @routes.get('/key-management', name='key_management')
+    async def key_management(request):
         key_tree = server.list_key_tree()
-        return render_template('key-management.html', refer_name='/key-management', key_tree=key_tree)
+        return render_template('key-management.html', request, refer_name='/key-management', key_tree=key_tree)
 
-    @app.route('/ndnsec-delete')
-    def ndnsec_delete():
-        name = request.args.get('name', None)
-        kind = request.args.get('type', 'n')
+    @routes.get('/ndnsec-delete')
+    async def ndnsec_delete(request):
+        args = request.query
+        name = args.get('name', None)
+        kind = args.get('type', 'n')
         if name is not None:
             server.delete_security_object(name, kind)
             time.sleep(0.1)
-            return redirect(url_for('key_management'))
+            return redirect('key_management', request)
 
-    @app.route('/ndnsec-keygen')
-    def ndnsec_keygen():
-        name = request.args.get('name', None)
+    @routes.get('/ndnsec-keygen')
+    async def ndnsec_keygen(request):
+        args = request.query
+        name = args.get('name', None)
         if name is not None:
             server.create_identity(name)
             time.sleep(0.1)
-            return redirect(url_for('key_management'))
+            return redirect('key_management', request)
 
-    @app.route('/ndn-ping')
-    def ndn_ping():
-        return render_template('ndn-ping.html', refer_name='/ndn-ping', **request.args.to_dict())
+    @routes.get('/ndn-ping', name='ndn_ping')
+    async def ndn_ping(request):
+        return render_template('ndn-ping.html', request, refer_name='/ndn-ping', **request.query)
 
-    @app.route('/exec/ndn-ping', methods=['POST'])
-    def exec_ndn_ping():
+    @routes.post('/exec/ndn-ping')
+    async def exec_ndn_ping(request):
         def decode_nack_reason(reason) -> str:
             codeset = {0: 'NONE', 50: 'CONGESTION', 100: 'DUPLICATE', 150: 'NO_ROUTE'}
             if reason in codeset:
@@ -314,22 +329,23 @@ def app_main():
             return True
 
         nonlocal last_ping_data
-        name = request.form['name']
-        can_be_prefix = request.form['can_be_prefix'] == 'true'
-        must_be_fresh = request.form['must_be_fresh'] == 'true'
+        form = await request.post()
+        name = form['name']
+        can_be_prefix = form['can_be_prefix'] == 'true'
+        must_be_fresh = form['must_be_fresh'] == 'true'
         try:
-            interest_lifetime = float(request.form['interest_lifetime']) * 1000.0
+            interest_lifetime = float(form['interest_lifetime']) * 1000.0
         except ValueError:
             interest_lifetime = 4000.0
 
         st_time = time.time()
         try:
-            data_name, meta_info, data = run_until_complete(delayed_express(server.app.express_interest,
+            data_name, meta_info, data = await server.app.express_interest(
                 name,
                 validator=validator,
                 lifetime=int(interest_lifetime),
                 can_be_prefix=can_be_prefix,
-                must_be_fresh=must_be_fresh))
+                must_be_fresh=must_be_fresh)
             ed_time = time.time()
             response_time = '{:.3f}s'.format(ed_time - st_time)
             response_type = 'Data'
@@ -351,47 +367,57 @@ def app_main():
             else:
                 signature_type = "None"
             last_ping_data = bytes(data)
-            return redirect(url_for('ndn_ping',
-                                    response_time=response_time,
-                                    response_type=response_type,
-                                    name=name,
-                                    content_type=content_type,
-                                    freshness_period=freshness_period,
-                                    final_block_id=final_block_id,
-                                    signature_type=signature_type,
-                                    download='/download/ping-data'))
+            return redirect('ndn_ping',
+                            request,
+                            response_time=response_time,
+                            response_type=response_type,
+                            name=name,
+                            content_type=content_type,
+                            freshness_period=freshness_period,
+                            final_block_id=final_block_id,
+                            signature_type=signature_type,
+                            download='/download/ping-data')
+        except ValueError as e:
+            logging.info("Illegal name")
+            return redirect('ndn_ping',
+                            request,
+                            response_time='ERROR',
+                            response_type=str(e),
+                            name=name)
         except (InterestCanceled, ValidationFailure):
             logging.info("No response: ndn-peek")
-            return redirect('/')
+            raise web.HTTPFound('/')
         except InterestNack as nack:
             ed_time = time.time()
             response_time = '{:.3f}s'.format(ed_time - st_time)
             response_type = 'NetworkNack'
             reason = decode_nack_reason(nack.reason)
-            return redirect(url_for('ndn_ping',
-                                    response_time=response_time,
-                                    response_type=response_type,
-                                    name=name,
-                                    reason=reason))
+            return redirect('ndn_ping',
+                            request,
+                            response_time=response_time,
+                            response_type=response_type,
+                            name=name,
+                            reason=reason)
         except InterestTimeout:
             ed_time = time.time()
             response_time = '{:.3f}s'.format(ed_time - st_time)
             response_type = 'Timeout'
-            return redirect(url_for('ndn_ping',
-                                    response_time=response_time,
-                                    response_type=response_type,
-                                    name=name))
+            return redirect('ndn_ping',
+                            request,
+                            response_time=response_time,
+                            response_type=response_type,
+                            name=name)
 
-    @app.route('/download/ping-data')
-    def download_ping_data():
-        return send_file(
-            io.BytesIO(last_ping_data),
-            mimetype='application/octet-stream',
-            as_attachment=True,
-            attachment_filename='ping.data'
-            )
+    @routes.get('/download/ping-data')
+    async def download_ping_data(_request):
+        return web.Response(
+            body=last_ping_data,
+            content_type='application/octet-stream',
+            headers={'Content-Disposition': 'attachment; filename="{ping.data}"'})
 
-    socketio.run(app)
+    app.add_routes(routes)
+    asyncio.ensure_future(server.run())
+    web.run_app(app)
 
 
 if __name__ == '__main__':

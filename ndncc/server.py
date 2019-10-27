@@ -1,9 +1,7 @@
-import threading
 import asyncio
 import urllib.request
 import socket
 import logging
-import time
 from datetime import datetime
 from ndn.app import NDNApp
 from ndn.encoding import Name, Component
@@ -29,14 +27,19 @@ class Server:
     def connection_test(self):
         return self.app.face.running
 
-    def run(self):
+    async def run(self):
         logging.info("Restarting app...")
         while True:
             try:
-                self.app.run_forever(after_start=self.face_event())
+                await self.app.main_loop(self.face_event())
+            except KeyboardInterrupt:
+                logging.info('Receiving Ctrl+C, shutdown')
+                break
             except FileNotFoundError:
                 logging.info("NFD disconnected...")
-            time.sleep(3.0)
+            finally:
+                self.app.shutdown()
+            await asyncio.sleep(3.0)
 
     async def face_event(self):
         last_seq = -1
@@ -57,7 +60,7 @@ class Server:
                 dic = self.face_event_to_dict(content)
                 dic['seq'] = str(last_seq)
                 dic['time'] = timestamp
-                self.emit('face event', dic)
+                await self.emit('face event', dic)
                 self.event_list.append(dic)
             except InterestCanceled:
                 break
@@ -124,7 +127,9 @@ class Server:
         except (InterestCanceled, InterestTimeout, InterestNack, ValidationFailure):
             logging.error(f'Command failed')
             return None
-        return parse_response(data)
+        ret = parse_response(data)
+        ret['status_text'] = ret['status_text'].decode()
+        return ret
 
     async def add_face(self, uri):
         # It's not easy to distinguish udp4://127.0.0.1 and udp4://spurs.cs.ucla.edu
@@ -159,28 +164,6 @@ class Server:
     async def unset_strategy(self, name: str):
         interest = make_command('strategy-choice', 'unset', name=name)
         return await self.issue_command_interest(interest)
-
-    @staticmethod
-    def start_server(emit_func):
-        done = threading.Event()
-        server = None
-
-        def create_and_run():
-            nonlocal server, done
-            server = Server(emit_func)
-            work_loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(work_loop)
-            done.set()
-            try:
-                server.run()
-            finally:
-                work_loop.close()
-
-        thread = threading.Thread(target=create_and_run)
-        thread.setDaemon(True)
-        thread.start()
-        done.wait()
-        return server
 
     @staticmethod
     def list_key_tree():
