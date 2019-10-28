@@ -165,59 +165,23 @@ class Server:
         interest = make_command('strategy-choice', 'unset', name=name)
         return await self.issue_command_interest(interest)
 
-    @staticmethod
-    def list_key_tree():
+    def list_key_tree(self):
         """
         Return the id-key-cert tree in a JSON like dict object.
         """
-        return {}
-        pib = KeyChain().getPib()
-        identities = pib._identities._identityNames
+        pib = self.app.keychain
         ret = {}
-        try:
-            default_id = pib.getDefaultIdentity().getName()
-        except Pib.Error:
-            default_id = PyName('/')
-        for id_name in identities:
-            id_obj = pib.getIdentity(PyName(id_name))
-            cur_id = {'default': '*' if id_name == default_id else ' '}
-            try:
-                default_key = id_obj.getDefaultKey().getName()
-            except Pib.Error:
-                default_key = PyName('/')
-
-            keys = id_obj._getKeys()._keyNames
-            cur_id['keys'] = {}
-            for key_name in keys:
-                key_obj = id_obj.getKey(PyName(key_name))
-                cur_key = {'default': '*' if key_name == default_key else ' '}
-                try:
-                    default_cert = key_obj.getDefaultCertificate().getName()
-                except Pib.Error:
-                    default_cert = PyName('/')
-
-                key_type = key_obj.getKeyType()
-                if key_type <= 4:
-                    cur_key['key_type'] = ['NONE', 'RSA', 'EC', 'AES', 'HMAC'][key_type]
-                else:
-                    cur_key['key_type'] = 'unknown'
-
-                certs = key_obj._getCertificates()._certificateNames
-                cur_key['certs'] = {}
-                for cert_name in certs:
-                    cert_obj = key_obj.getCertificate(PyName(cert_name))
-                    signature = cert_obj.getSignature()
+        for id_name, id_obj in pib.items():
+            cur_id = {'default': '*' if id_obj.is_default else ' ', 'keys': {}}
+            for key_name, key_obj in id_obj.items():
+                cur_key = {'default': '*' if key_obj.is_default else ' ', 'certs': {}}
+                for cert_name, cert_obj in key_obj.items():
                     cur_cert = {
-                        'default': '*' if cert_name == default_cert else ' ',
-                        'not_before': str(cert_obj.getValidityPeriod().getNotBefore()),
-                        'not_after': str(cert_obj.getValidityPeriod().getNotAfter()),
-                        'issuer_id': cert_obj.getIssuerId().toEscapedString(),
-                        'key_locator': signature.getKeyLocator().getKeyName().toUri(),
-                        'signature_type': cert_obj.getSignature().__class__.__name__,
+                        'default': '*' if cert_obj.is_default else ' ',
                     }
-                    cur_key['certs'][cert_name.toUri()] = cur_cert
-                cur_id['keys'][key_name.toUri()] = cur_key
-            ret[id_name.toUri()] = cur_id
+                    cur_key['certs'][Name.to_str(cert_name)] = cur_cert
+                cur_id['keys'][Name.to_str(key_name)] = cur_key
+            ret[Name.to_str(id_name)] = cur_id
         return ret
 
     @staticmethod
