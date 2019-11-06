@@ -3,11 +3,13 @@ import urllib.request
 import socket
 import logging
 from datetime import datetime
+from Cryptodome.PublicKey import RSA, ECC
 from ndn.app import NDNApp
-from ndn.encoding import Name, Component
+from ndn.encoding import Name, Component, SignatureType
 from ndn.types import InterestCanceled, InterestTimeout, InterestNack, ValidationFailure
 from ndn.app_support.nfd_mgmt import FaceEventNotification, parse_response, make_command,\
     FaceQueryFilter, FaceQueryFilterValue, FaceStatusMsg
+from ndn.app_support.security_v2 import parse_certificate
 
 
 class Server:
@@ -169,49 +171,66 @@ class Server:
         """
         Return the id-key-cert tree in a JSON like dict object.
         """
+        def get_key_type(key):
+            key = bytes(key)
+            try:
+                RSA.import_key(key)
+                return 'RSA'
+            except ValueError:
+                pass
+            try:
+                ECC.import_key(key)
+                return 'ECC'
+            except ValueError:
+                pass
+            return 'Unknown'
+        sig_type_dic = {
+            SignatureType.NOT_SIGNED: 'NotSigned',
+            SignatureType.DIGEST_SHA256: 'DigestSha256',
+            SignatureType.SHA256_WITH_RSA: 'SignatureSha256WithRsa',
+            SignatureType.SHA256_WITH_ECDSA: 'SignatureSha256WithEcdsa',
+            SignatureType.HMAC_WITH_SHA256: 'SignatureHmacWithSha256'
+        }
+
         pib = self.app.keychain
         ret = {}
         for id_name, id_obj in pib.items():
             cur_id = {'default': '*' if id_obj.is_default else ' ', 'keys': {}}
             for key_name, key_obj in id_obj.items():
-                cur_key = {'default': '*' if key_obj.is_default else ' ', 'certs': {}}
+                cur_key = {
+                    'default': '*' if key_obj.is_default else ' ',
+                    'key_type': get_key_type(key_obj.key_bits),
+                    'certs': {}
+                }
                 for cert_name, cert_obj in key_obj.items():
+                    cert_v2 = parse_certificate(cert_obj.data)
                     cur_cert = {
                         'default': '*' if cert_obj.is_default else ' ',
+                        'not_before': bytes(cert_v2.signature_info.validity_period.not_before).decode(),
+                        'not_after': bytes(cert_v2.signature_info.validity_period.not_after).decode(),
+                        'issuer_id': Component.to_str(cert_v2.name[-2]),
+                        'key_locator': Name.to_str(cert_v2.signature_info.key_locator.name),
+                        'signature_type': sig_type_dic.get(cert_v2.signature_info.signature_type, 'Unknown')
                     }
                     cur_key['certs'][Name.to_str(cert_name)] = cur_cert
                 cur_id['keys'][Name.to_str(key_name)] = cur_key
             ret[Name.to_str(id_name)] = cur_id
         return ret
 
-    @staticmethod
-    def create_identity(name):
-        return
-        key_chain = KeyChain()
-        try:
-            cur_id = key_chain.getPib().getIdentity(PyName(name))
-            key_chain.createKey(cur_id)
-        except Pib.Error:
-            key_chain.createIdentityV2(PyName(name))
-
-    @staticmethod
-    def delete_security_object(name, kind):
-        return
-        key_chain = KeyChain()
-        logging.info("Delete security object %s %s", name, kind)
-        if kind == "c":
-            id_name = CertificateV2.extractIdentityFromCertName(PyName(name))
-            key_name = CertificateV2.extractKeyNameFromCertName(PyName(name))
-            cur_id = key_chain.getPib().getIdentity(id_name)
-            cur_key = cur_id.getKey(key_name)
-            key_chain.deleteCertificate(cur_key, PyName(name))
-        elif kind == "k":
-            id_name = PibKey.extractIdentityFromKeyName(PyName(name))
-            cur_id = key_chain.getPib().getIdentity(id_name)
-            cur_key = cur_id.getKey(PyName(name))
-            key_chain.deleteKey(cur_id, cur_key)
+    def create_identity(self, name):
+        if name in self.app.keychain:
+            self.app.keychain.new_key(name)
         else:
-            key_chain.deleteIdentity(PyName(name))
+            self.app.keychain.new_identity(name)
+
+    def delete_security_object(self, name, kind):
+        keychain = self.app.keychain
+        if kind == "c":
+            keychain.del_cert(name)
+        elif kind == "k":
+            keychain.del_key(name)
+        else:
+            keychain.del_identity(name)
 
     async def query_face_id(self, uri):
         query_filter = FaceQueryFilter()
