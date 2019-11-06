@@ -6,7 +6,7 @@ from datetime import datetime
 from Cryptodome.PublicKey import RSA, ECC
 from ndn.app import NDNApp
 from ndn.encoding import Name, Component, SignatureType
-from ndn.types import InterestCanceled, InterestTimeout, InterestNack, ValidationFailure
+from ndn.types import InterestCanceled, InterestTimeout, InterestNack, ValidationFailure, NetworkError
 from ndn.app_support.nfd_mgmt import FaceEventNotification, parse_response, make_command,\
     FaceQueryFilter, FaceQueryFilterValue, FaceStatusMsg
 from ndn.app_support.security_v2 import parse_certificate
@@ -37,7 +37,7 @@ class Server:
             except KeyboardInterrupt:
                 logging.info('Receiving Ctrl+C, shutdown')
                 break
-            except FileNotFoundError:
+            except (FileNotFoundError, ConnectionRefusedError):
                 logging.info("NFD disconnected...")
             finally:
                 self.app.shutdown()
@@ -64,7 +64,7 @@ class Server:
                 dic['time'] = timestamp
                 await self.emit('face event', dic)
                 self.event_list.append(dic)
-            except InterestCanceled:
+            except (InterestCanceled, NetworkError):
                 break
             except InterestTimeout:
                 last_seq = -1
@@ -126,7 +126,7 @@ class Server:
             logging.info('Issuing command %s', Name.to_str(cmd))
             _, _, data = await self.app.express_interest(
                 cmd, lifetime=1000, can_be_prefix=True, must_be_fresh=True)
-        except (InterestCanceled, InterestTimeout, InterestNack, ValidationFailure):
+        except (InterestCanceled, InterestTimeout, InterestNack, ValidationFailure, NetworkError):
             logging.error(f'Command failed')
             return None
         ret = parse_response(data)
@@ -241,7 +241,7 @@ class Server:
         try:
             _, _, data = await self.app.express_interest(
                 name, lifetime=1000, can_be_prefix=True, must_be_fresh=True)
-        except (InterestCanceled, InterestTimeout, InterestNack, ValidationFailure):
+        except (InterestCanceled, InterestTimeout, InterestNack, ValidationFailure, NetworkError):
             logging.error(f'Query failed')
             return None
         msg = FaceStatusMsg.parse(data)

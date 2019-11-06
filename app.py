@@ -10,7 +10,7 @@ import aiohttp_jinja2
 import jinja2
 from ndncc.server import Server
 from ndn.encoding import is_binary_str, Name, Component
-from ndn.types import InterestCanceled, InterestTimeout, InterestNack, ValidationFailure
+from ndn.types import InterestCanceled, InterestTimeout, InterestNack, ValidationFailure, NetworkError
 from ndn.app_support.nfd_mgmt import GeneralStatus, FaceStatusMsg, RibStatus, StrategyChoiceMsg
 
 
@@ -24,9 +24,11 @@ def decode_dict(msg) -> Dict[str, str]:
     return ret
 
 
-def app_main():
-    # from gevent.monkey import patch_all
-    # patch_all(ssl=False)
+def app_main(main_thread=False):
+    try:
+        asyncio.get_event_loop()
+    except RuntimeError:
+        asyncio.set_event_loop(asyncio.new_event_loop())
 
     logging.basicConfig(format='[{asctime}]{levelname}:{message}',
                         datefmt='%Y-%m-%d %H:%M:%S',
@@ -74,7 +76,7 @@ def app_main():
         try:
             _, _, data = await server.app.express_interest(
                 name, lifetime=1000, can_be_prefix=True, must_be_fresh=True)
-        except (InterestCanceled, InterestTimeout, InterestNack, ValidationFailure):
+        except (InterestCanceled, InterestTimeout, InterestNack, ValidationFailure, NetworkError):
             logging.info("No response: general status")
             raise web.HTTPFound('/')
         msg = GeneralStatus.parse(data)
@@ -125,7 +127,7 @@ def app_main():
         try:
             _, _, data = await server.app.express_interest(
                 name, lifetime=1000, can_be_prefix=True, must_be_fresh=True)
-        except (InterestCanceled, InterestTimeout, InterestNack, ValidationFailure):
+        except (InterestCanceled, InterestTimeout, InterestNack, ValidationFailure, NetworkError):
             logging.info("No response: face-list")
             raise web.HTTPFound('/')
         msg = FaceStatusMsg.parse(data)
@@ -189,7 +191,7 @@ def app_main():
         try:
             _, _, data = await server.app.express_interest(
                 name, lifetime=1000, can_be_prefix=True, must_be_fresh=True)
-        except (InterestCanceled, InterestTimeout, InterestNack, ValidationFailure):
+        except (InterestCanceled, InterestTimeout, InterestNack, ValidationFailure, NetworkError):
             logging.info("No response: route-list")
             raise web.HTTPFound('/')
         msg = RibStatus.parse(data)
@@ -209,7 +211,7 @@ def app_main():
         try:
             _, _, data = await server.app.express_interest(
                 name, lifetime=1000, can_be_prefix=True, must_be_fresh=True)
-        except (InterestCanceled, InterestTimeout, InterestNack, ValidationFailure):
+        except (InterestCanceled, InterestTimeout, InterestNack, ValidationFailure, NetworkError):
             logging.info("No response: strategy-list")
             raise web.HTTPFound('/')
         msg = StrategyChoiceMsg.parse(data)
@@ -384,7 +386,7 @@ def app_main():
                             response_time='ERROR',
                             response_type=str(e),
                             name=name)
-        except (InterestCanceled, ValidationFailure):
+        except (InterestCanceled, ValidationFailure, NetworkError):
             logging.info("No response: ndn-peek")
             raise web.HTTPFound('/')
         except InterestNack as nack:
@@ -417,8 +419,19 @@ def app_main():
 
     app.add_routes(routes)
     asyncio.ensure_future(server.run())
-    web.run_app(app)
+
+    async def run_app():
+        runner = web.AppRunner(app)
+        await runner.setup()
+        site = web.TCPSite(runner, "localhost", 5000)
+        await site.start()
+
+    if main_thread:
+        web.run_app(app, port=5000)
+    else:
+        asyncio.get_event_loop().run_until_complete(run_app())
+        asyncio.get_event_loop().run_forever()
 
 
 if __name__ == '__main__':
-    app_main()
+    app_main(True)
