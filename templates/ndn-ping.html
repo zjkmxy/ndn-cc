@@ -52,7 +52,7 @@
         </div>
         <div class="pure-control-group">
           <label for="res_name">Name</label>
-          <input type="text" class="pure-u-2-3" name="res_name" id="res_name" value="{{ name|e }}" readonly/>
+          <input type="text" class="pure-u-2-3" name="res_name" id="res_name" value="{{ name|urlencode }}" readonly/>
         </div>
         {% if content_type %}
           <div class="pure-control-group">
@@ -69,7 +69,7 @@
         {% if final_block_id %}
           <div class="pure-control-group">
             <label for="res_finalblockid">FinalBlockId</label>
-            <input type="text" class="pure-u-2-3" name="res_finalblockid" id="res_finalblockid" value="{{ final_block_id|e }}" readonly/>
+            <input type="text" class="pure-u-2-3" name="res_finalblockid" id="res_finalblockid" value="{{ final_block_id|urlencode }}" readonly/>
           </div>
         {% endif %}
         {% if signature_type %}

@@ -9,8 +9,9 @@ from threading import Thread
 def normal_main():
     def sudo_execute(cmd):
         if platform == "darwin":
-            script_text = 'do shell script "{}" with administrator privileges'.format(cmd)
-            os.spawnlp(os.P_NOWAIT, 'osascript', 'osascript', '-e', script_text)
+            pass
+            # script_text = 'do shell script "{}" with administrator privileges'.format(cmd)
+            # os.spawnlp(os.P_NOWAIT, 'osascript', 'osascript', '-e', script_text)
         else:
             os.spawnlp(os.P_NOWAIT, 'pkexec', 'pkexec', cmd)
 
