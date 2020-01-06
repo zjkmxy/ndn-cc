@@ -7,7 +7,7 @@ Usage:
 
 from setuptools import setup
 
-APP = ['osx_main.py']
+APP = ['main.py']
 DATA_FILES = ['ndn_app.png', 'static', 'templates']
 OPTIONS = {'argv_emulation': True,
            'iconfile': 'ndn_app.icns',
@@ -21,9 +21,11 @@ OPTIONS = {'argv_emulation': True,
                'aiohttp-jinja2',
                'python-ndn',
                'jinja2.ext',
+               'engineio.async_drivers.aiohttp',
                ],
            'packages': [
                'Pillow',
+               'Cryptodome',
            ],
            'plist': {
                'CFBundleIdentifier': "com.ndn.ndncc",

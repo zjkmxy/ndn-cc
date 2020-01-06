@@ -23,7 +23,7 @@ HTTP server:
 
 Tray menu:
 ```bash
-./venv/bin/python osx_main.py
+./venv/bin/python main.py
 ```
 
 Generate OSX App
@@ -42,5 +42,5 @@ python setup.py py2app
 ```
 This application needs to be codesigned manually. e.g.:
 ```bash
-cd dist && codesign -s "49A5A463489463419387A5E55DA5D237D99DF4DE" NDNCC.app --deep --force
+cd dist && codesign -s "76FE2218A74493CB0A06975687BCA4457E98C491" NDNCC.app --deep --force
 ```
