@@ -14,16 +14,31 @@ python3.6 -m venv ./venv
 ./venv/bin/python -m pip install -r requirements.txt
 ```
 
+Pipenv:
+Please notice that currently pipenv does not work with py2app.
+Also, the specified python version is 3.8.
+```bash
+pipenv install
+```
+
 Execute
 =======
 HTTP server:
 ```bash
 ./venv/bin/python app.py
 ```
+or
+```bash
+pipenv run app
+```
 
 Tray menu:
 ```bash
 ./venv/bin/python main.py
+```
+or
+```bash
+pipenv run main
 ```
 
 Generate OSX App

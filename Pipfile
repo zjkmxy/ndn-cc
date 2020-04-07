@@ -1,0 +1,23 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+python-socketio = ">=4.3.1"
+pystray = ">=0.14.4"
+aiohttp = ">=3.6.2"
+aiohttp-jinja2 = ">=1.2.0"
+python-ndn = "==0.2b2.post1"
+Jinja2 = ">=2.10.3"
+Pillow = ">=6.1.0"
+
+[requires]
+python_version = "3.8"
+
+[scripts]
+app = "python app.py"
+main = "python main.py"
+
