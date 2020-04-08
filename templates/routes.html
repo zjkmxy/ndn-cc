@@ -1,10 +1,10 @@
 {% extends "base.html" %}
-{% block title %}Route List{% endblock %}
+{% block title %}Routes{% endblock %}
 {% block head %}
   {{ super() }}
 {% endblock %}
 {% block bodyhead %}
-  <h1>Route List</h1>
+  <h1>Routes</h1>
 {% endblock %}
 {% block content %}
   <table class="pure-table pure-table-bordered">
@@ -40,7 +40,7 @@
                   <td>{{ route['flags']|e }}</td>
                   <td>{{ route['exp_period']|e }}</td>
                   <td>
-                    <form action="/exec/remove-route" method="post">
+                    <form action="/routes/remove" method="post">
                       <input type="hidden" name="name" value={{ rib_entry[0] }}>
                       <input type="hidden" name="face_id" value={{ route["face_id"] }}>
                       <button type="submit">Remove</button>
@@ -55,7 +55,7 @@
       {% endfor %}
     </tbody>
   </table>
-  <form action="/exec/add-route" method="post">
+  <form action="/routes/add" method="post">
     <p>
       <label for="name">Prefix</label>
       <input type="text" name="name" id="name"/>

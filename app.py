@@ -42,7 +42,7 @@ def app_main(main_thread=False):
     aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader(os.path.join(base_path, 'templates')))
     sio.attach(app)
     app.router.add_static(prefix='/static', path=os.path.join(base_path, 'static'))
-    routes = web.RouteTableDef()
+    routeTable = web.RouteTableDef()
     # app = Flask(__name__,
     #             static_url_path='/static',
     #             static_folder=os.path.join(base_path, 'static'),
@@ -61,13 +61,13 @@ def app_main(main_thread=False):
     def redirect(route_name, request, **kwargs):
         raise web.HTTPFound(request.app.router[route_name].url_for().with_query(kwargs))
 
-    @routes.get('/')
+    @routeTable.get('/')
     async def index(request):
         nfd_state = server.connection_test()
         return render_template('index.html', request, refer_name='/', nfd_state=nfd_state)
 
-    @routes.get('/general-status')
-    async def general_status(request):
+    @routeTable.get('/forwarder-status')
+    async def forwarder_status(request):
         def convert_time(timestamp):
             ret = datetime.fromtimestamp(float(timestamp) / 1000.0)
             return str(ret)
@@ -77,16 +77,16 @@ def app_main(main_thread=False):
             _, _, data = await server.app.express_interest(
                 name, lifetime=1000, can_be_prefix=True, must_be_fresh=True)
         except (InterestCanceled, InterestTimeout, InterestNack, ValidationFailure, NetworkError):
-            logging.info("No response: general status")
+            logging.info("No response: forwarder status")
             raise web.HTTPFound('/')
         msg = GeneralStatus.parse(data)
         status = decode_dict(msg)
         status['start_timestamp'] = convert_time(status['start_timestamp'])
         status['current_timestamp'] = convert_time(status['current_timestamp'])
-        return render_template('general-status.html', request, refer_name='/general-status', name=name, status=status)
+        return render_template('forwarder-status.html', request, refer_name='/forwarder-status', name=name, status=status)
 
-    @routes.post('/exec/add-face')
-    async def exec_addface(request):
+    @routeTable.post('/faces/add')
+    async def faces_add(request):
         if not server.connection_test():
             raise web.HTTPFound('/')
 
@@ -97,11 +97,11 @@ def app_main(main_thread=False):
             logging.info("No response: add face")
             ret = {'status_code': -1, 'status_text': 'No response'}
         else:
-            logging.info("Add face %s %s %s", uri, ret['status_code'], ret['status_text'])
-        return redirect('face_list', request, st_code=ret['status_code'], st_text=ret['status_text'])
+            logging.info("Added face %s %s %s", uri, ret['status_code'], ret['status_text'])
+        return redirect('faces', request, st_code=ret['status_code'], st_text=ret['status_text'])
 
-    @routes.post('/exec/remove-face')
-    async def exec_removeface(request):
+    @routeTable.post('/faces/remove')
+    async def faces_remove(request):
         if not server.connection_test():
             raise web.HTTPFound('/')
 
@@ -112,11 +112,11 @@ def app_main(main_thread=False):
             logging.info("No response: remove face")
             ret = {'status_code': -1, 'status_text': 'No response'}
         else:
-            logging.info("Remove face %s %s %s", face_id, ret['status_code'], ret['status_text'])
-        return redirect('face_list', request, st_code=ret['status_code'], st_text=ret['status_text'])
+            logging.info("Removed face %s %s %s", face_id, ret['status_code'], ret['status_text'])
+        return redirect('faces', request, st_code=ret['status_code'], st_text=ret['status_text'])
 
-    @routes.get('/face-list', name='face_list')
-    async def face_list(request):
+    @routeTable.get('/faces', name='faces')
+    async def faces(request):
         def decode_to_str(dic):
             for k, v in dic.items():
                 if isinstance(v, bytes):
@@ -134,15 +134,15 @@ def app_main(main_thread=False):
         face_list = [decode_to_str(fs.asdict()) for fs in msg.face_status]
         fields = list(face_list[0].keys())
         fields_collapse = [field for field in set(fields) - {'face_id', 'uri'}]
-        return render_template('face-list.html', request, refer_name='/face-list', face_list=face_list,
+        return render_template('faces.html', request, refer_name='/faces', face_list=face_list,
                                fields_collapse=fields_collapse, **request.query)
 
-    @routes.get('/face-events')
+    @routeTable.get('/face-events')
     async def face_events(request):
         return render_template('face-events.html', request, refer_name='/face-events', event_list=server.event_list)
 
-    @routes.post('/exec/add-route')
-    async def exec_addroute(request):
+    @routeTable.post('/routes/add')
+    async def routes_add(request):
         if not server.connection_test():
             raise web.HTTPFound('/')
 
@@ -151,18 +151,18 @@ def app_main(main_thread=False):
         try:
             face_id = int(form['face_id'])
         except ValueError:
-            return redirect('route_list', request, st_code='-1', st_text=f'Invalid number {form["face_id"]}')
+            return redirect('routes', request, st_code='-1', st_text=f'Invalid number {form["face_id"]}')
 
         ret = await server.add_route(name, face_id)
         if ret is None:
             logging.info("No response: add route")
             ret = {'status_code': -1, 'status_text': 'No response'}
         else:
-            logging.info("Add route %s->%s %s %s", name, face_id, ret['status_code'], ret['status_text'])
-        return redirect('route_list', request, st_code=ret['status_code'], st_text=ret['status_text'])
+            logging.info("Added route %s->%s %s %s", name, face_id, ret['status_code'], ret['status_text'])
+        return redirect('routes', request, st_code=ret['status_code'], st_text=ret['status_text'])
 
-    @routes.post('/exec/remove-route')
-    async def exec_removeroute(request):
+    @routeTable.post('/routes/remove')
+    async def routes_remove(request):
         if not server.connection_test():
             raise web.HTTPFound('/')
 
@@ -174,11 +174,11 @@ def app_main(main_thread=False):
             logging.info("No response: remove route")
             ret = {'status_code': -1, 'status_text': 'No response'}
         else:
-            logging.info("Remove route %s->%s %s %s", name, face_id, ret['status_code'], ret['status_text'])
-        return redirect('route_list', request, st_code=ret['status_code'], st_text=ret['status_text'])
+            logging.info("Removed route %s->%s %s %s", name, face_id, ret['status_code'], ret['status_text'])
+        return redirect('routes', request, st_code=ret['status_code'], st_text=ret['status_text'])
 
-    @routes.get('/route-list', name='route_list')
-    async def route_list(request):
+    @routeTable.get('/routes', name='routes')
+    async def routes(request):
         def decode_route_list(msg):
             ret = []
             for item in msg:
@@ -196,11 +196,11 @@ def app_main(main_thread=False):
             raise web.HTTPFound('/')
         msg = RibStatus.parse(data)
         rib_list = decode_route_list(msg.asdict()['entries'])
-        return render_template('route-list.html', request, refer_name='/route-list',
+        return render_template('routes.html', request, refer_name='/routes',
                                rib_list=rib_list, **request.query)
 
-    @routes.get('/strategy-list', name='strategy_list')
-    async def strategy_list(request):
+    @routeTable.get('/strategies', name='strategies')
+    async def strategies(request):
         def decode_strategy(msg):
             return [{
                 "name": Name.to_str(item.name),
@@ -216,14 +216,14 @@ def app_main(main_thread=False):
             raise web.HTTPFound('/')
         msg = StrategyChoiceMsg.parse(data)
         strategy_list = decode_strategy(msg.strategy_choices)
-        return render_template('strategy-list.html',
+        return render_template('strategies.html',
                                request,
-                               refer_name='/strategy-list',
+                               refer_name='/strategies',
                                strategy_list=strategy_list,
                                **request.query)
 
-    @routes.post('/exec/set-strategy')
-    async def exec_set_strategy(request):
+    @routeTable.post('/strategies/set')
+    async def strategies_set(request):
         if not server.connection_test():
             raise web.HTTPFound('/')
 
@@ -233,13 +233,13 @@ def app_main(main_thread=False):
         ret = await server.set_strategy(name, strategy)
         if ret is None:
             logging.info("No response: set strategy")
-            return redirect('strategy_list', request, st_code='-1', st_text='No response')
+            return redirect('strategies', request, st_code='-1', st_text='No response')
         else:
             logging.info("Set strategy %s->%s %s %s", name, strategy, ret['status_code'], ret['status_text'])
-            return redirect('strategy_list', request, st_code=ret['status_code'], st_text=ret['status_text'])
+            return redirect('strategies', request, st_code=ret['status_code'], st_text=ret['status_text'])
 
-    @routes.post('/exec/unset-strategy')
-    async def exec_unset_strategy(request):
+    @routeTable.post('/strategies/unset')
+    async def strategies_unset(request):
         if not server.connection_test():
             raise web.HTTPFound('/')
 
@@ -248,36 +248,36 @@ def app_main(main_thread=False):
         ret = await server.unset_strategy(name)
         if ret is None:
             logging.info("No response: unset strategy")
-            return redirect('strategy_list', request, st_code='-1', st_text='No response')
+            return redirect('strategies', request, st_code='-1', st_text='No response')
         else:
             logging.info("Unset strategy %s %s %s", name, ret['status_code'], ret['status_text'])
-            return redirect('strategy_list', request, st_code=ret['status_code'], st_text=ret['status_text'])
+            return redirect('strategies', request, st_code=ret['status_code'], st_text=ret['status_text'])
 
-    @routes.get('/auto-configuration', name='auto_configuration')
-    async def auto_configuration(request):
-        return render_template('auto-configuration.html',
+    @routeTable.get('/autoconf', name='autoconf')
+    async def autoconf(request):
+        return render_template('autoconf.html',
                                request,
-                               refer_name='/auto-configuration',
+                               refer_name='/autoconf',
                                **request.query)
 
-    @routes.get('/exec/autoconf')
-    async def exec_autoconf(request):
+    @routeTable.get('/autoconf/perform')
+    async def autoconf_perform(request):
         if not server.connection_test():
             raise web.HTTPFound('/')
 
         ret, msg = await server.autoconf()
-        return redirect('auto_configuration', request, msg=msg)
+        return redirect('autoconf', request, msg=msg)
 
-    @routes.get('/certificate-request')
-    async def certificate_request(request):
-        return render_template('certificate-request.html', request, refer_name='/certificate-request')
+    @routeTable.get('/certificate-requests')
+    async def certificate_requests(request):
+        return render_template('certificate-requests.html', request, refer_name='/certificate-requests')
 
-    @routes.get('/key-management', name='key_management')
+    @routeTable.get('/key-management', name='key_management')
     async def key_management(request):
         key_tree = server.list_key_tree()
         return render_template('key-management.html', request, refer_name='/key-management', key_tree=key_tree)
 
-    @routes.get('/ndnsec-delete')
+    @routeTable.get('/ndnsec-delete')
     async def ndnsec_delete(request):
         args = request.query
         name = args.get('name', None)
@@ -287,7 +287,7 @@ def app_main(main_thread=False):
             time.sleep(0.1)
             return redirect('key_management', request)
 
-    @routes.get('/ndnsec-keygen')
+    @routeTable.get('/ndnsec-keygen')
     async def ndnsec_keygen(request):
         args = request.query
         name = args.get('name', None)
@@ -296,11 +296,11 @@ def app_main(main_thread=False):
             time.sleep(0.1)
             return redirect('key_management', request)
 
-    @routes.get('/ndn-ping', name='ndn_ping')
+    @routeTable.get('/ndn-ping', name='ndn_ping')
     async def ndn_ping(request):
         return render_template('ndn-ping.html', request, refer_name='/ndn-ping', **request.query)
 
-    @routes.post('/exec/ndn-ping')
+    @routeTable.post('/exec/ndn-ping')
     async def exec_ndn_ping(request):
         def decode_nack_reason(reason) -> str:
             codeset = {0: 'NONE', 50: 'CONGESTION', 100: 'DUPLICATE', 150: 'NO_ROUTE'}
@@ -410,14 +410,14 @@ def app_main(main_thread=False):
                             response_type=response_type,
                             name=name)
 
-    @routes.get('/download/ping-data')
+    @routeTable.get('/download/ping-data')
     async def download_ping_data(_request):
         return web.Response(
             body=last_ping_data,
             content_type='application/octet-stream',
             headers={'Content-Disposition': 'attachment; filename="{ping.data}"'})
 
-    app.add_routes(routes)
+    app.add_routes(routeTable)
     asyncio.ensure_future(server.run())
 
     async def run_app():

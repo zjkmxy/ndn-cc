@@ -1,10 +1,10 @@
 {% extends "base.html" %}
-{% block title %}Face List{% endblock %}
+{% block title %}Faces{% endblock %}
 {% block head %}
   {{ super() }}
 {% endblock %}
 {% block bodyhead %}
-  <h1>Face List</h1>
+  <h1>Faces</h1>
 {% endblock %}
 {% block content %}
   <table class="pure-table">
@@ -29,7 +29,7 @@
           </details>
         </td>
         <td>
-          <form class="pure-form" action="/exec/remove-face" method="post">
+          <form class="pure-form" action="/faces/remove" method="post">
             <input type="hidden" name="face_id" value={{ item["face_id"] }}>
             <button type="submit">Remove</button>
           </form>
@@ -38,7 +38,7 @@
       {% endfor %}
     </tbody>
   </table>
-  <form class="pure-form" action="/exec/add-face" method="post">
+  <form class="pure-form" action="/faces/add" method="post">
     <p>
       <label for="ip">IP Addr</label>
       <input type="text" name="ip" id="ip"/>

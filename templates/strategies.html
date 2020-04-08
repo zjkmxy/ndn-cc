@@ -22,7 +22,7 @@
         <td>{{ item['name']|e }}</td>
         <td>{{ item['strategy']|e }}</td>
         <td>
-          <form action="/exec/unset-strategy" method="post">
+          <form action="/strategies/unset" method="post">
             <input type="hidden" name="name" value={{ item["name"] }}>
             <button type="submit">Unset</button>
           </form>
@@ -31,7 +31,7 @@
       {% endfor %}
     </tbody>
   </table>
-  <form class="pure-form" action="/exec/set-strategy" method="post">
+  <form class="pure-form" action="/strategies/set" method="post">
     <p>
       <label for="name">Name</label>
       <input type="text" name="name" id="name"/>
