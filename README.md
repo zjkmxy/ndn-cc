@@ -1,8 +1,8 @@
 Dependencies
 ============
-- Python 3.6
+- Python 3
   - Ubuntu 16.04 needs [New Python Versions PPA](https://launchpad.net/~deadsnakes/+archive/ubuntu/ppa)
-  - Ubuntu 16.04 or 18.04: `sudo apt install python3.6 python3.6-venv`
+  - Ubuntu 16.04 or 18.04: `sudo apt install python3 python3-venv`
 - Ubuntu needs `sudo apt install budgie-indicator-applet` for tray icon
 
 
@@ -10,12 +10,12 @@ Setup Development Environment
 =============================
 Python venv:
 ```bash
-python3.6 -m venv ./venv
+python3 -m venv ./venv
 ./venv/bin/python -m pip install -r requirements.txt
 ```
 
 Pipenv:
-Please notice that currently pipenv does not work with py2app.
+Please note that, currently, pipenv does not work with py2app.
 Also, the specified python version is 3.8.
 ```bash
 pipenv install
