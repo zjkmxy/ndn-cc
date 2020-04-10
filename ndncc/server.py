@@ -29,6 +29,12 @@ class Server:
     def connection_test(self):
         return self.app.face.running
 
+    def decode_to_str(self, dic):
+        for k, v in dic.items():
+            if isinstance(v, bytes):
+                dic[k] = v.decode()
+        return dic
+
     async def run(self):
         logging.info("Restarting app...")
         while True:
@@ -42,6 +48,18 @@ class Server:
             finally:
                 self.app.shutdown()
             await asyncio.sleep(3.0)
+
+    async def get_face_list(self):
+        name = "/localhost/nfd/faces/list"
+        try:
+            _, _, data = await self.app.express_interest(
+                name, lifetime=1000, can_be_prefix=True, must_be_fresh=True)
+        except (InterestCanceled, InterestTimeout, InterestNack, ValidationFailure, NetworkError):
+            logging.info("No response: face-list")
+            raise web.HTTPFound('/')
+        msg = FaceStatusMsg.parse(data)
+        face_list = [self.decode_to_str(fs.asdict()) for fs in msg.face_status]
+        return face_list
 
     async def face_event(self):
         last_seq = -1
@@ -146,7 +164,7 @@ class Server:
 
         interest = make_command('faces', 'create', uri=uri.encode())
         return await self.issue_command_interest(interest)
-    
+
     async def remove_face(self, face_id: int):
         interest = make_command('faces', 'destroy', face_id=face_id)
         return await self.issue_command_interest(interest)

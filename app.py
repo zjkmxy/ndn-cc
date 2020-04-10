@@ -11,7 +11,7 @@ import jinja2
 from ndncc.server import Server
 from ndn.encoding import is_binary_str, Name, Component
 from ndn.types import InterestCanceled, InterestTimeout, InterestNack, ValidationFailure, NetworkError
-from ndn.app_support.nfd_mgmt import GeneralStatus, FaceStatusMsg, RibStatus, StrategyChoiceMsg
+from ndn.app_support.nfd_mgmt import GeneralStatus, FaceStatusMsg, RibStatus, FibStatus, StrategyChoiceMsg
 
 
 def decode_dict(msg) -> Dict[str, str]:
@@ -117,12 +117,6 @@ def app_main(main_thread=False):
 
     @routeTable.get('/faces', name='faces')
     async def faces(request):
-        def decode_to_str(dic):
-            for k, v in dic.items():
-                if isinstance(v, bytes):
-                    dic[k] = v.decode()
-            return dic
-
         name = "/localhost/nfd/faces/list"
         try:
             _, _, data = await server.app.express_interest(
@@ -131,7 +125,7 @@ def app_main(main_thread=False):
             logging.info("No response: face-list")
             raise web.HTTPFound('/')
         msg = FaceStatusMsg.parse(data)
-        face_list = [decode_to_str(fs.asdict()) for fs in msg.face_status]
+        face_list = [server.decode_to_str(fs.asdict()) for fs in msg.face_status]
         fields = list(face_list[0].keys())
         fields_collapse = [field for field in set(fields) - {'face_id', 'uri'}]
         return render_template('faces.html', request, refer_name='/faces', face_list=face_list,
@@ -141,8 +135,8 @@ def app_main(main_thread=False):
     async def face_events(request):
         return render_template('face-events.html', request, refer_name='/face-events', event_list=server.event_list)
 
-    @routeTable.post('/routes/add')
-    async def routes_add(request):
+    @routeTable.post('/routing/add')
+    async def routing_add(request):
         if not server.connection_test():
             raise web.HTTPFound('/')
 
@@ -151,7 +145,7 @@ def app_main(main_thread=False):
         try:
             face_id = int(form['face_id'])
         except ValueError:
-            return redirect('routes', request, st_code='-1', st_text=f'Invalid number {form["face_id"]}')
+            return redirect('routing', request, st_code='-1', st_text=f'Invalid number {form["face_id"]}')
 
         ret = await server.add_route(name, face_id)
         if ret is None:
@@ -159,10 +153,10 @@ def app_main(main_thread=False):
             ret = {'status_code': -1, 'status_text': 'No response'}
         else:
             logging.info("Added route %s->%s %s %s", name, face_id, ret['status_code'], ret['status_text'])
-        return redirect('routes', request, st_code=ret['status_code'], st_text=ret['status_text'])
+        return redirect('routing', request, st_code=ret['status_code'], st_text=ret['status_text'])
 
-    @routeTable.post('/routes/remove')
-    async def routes_remove(request):
+    @routeTable.post('/routing/remove')
+    async def routing_remove(request):
         if not server.connection_test():
             raise web.HTTPFound('/')
 
@@ -175,11 +169,21 @@ def app_main(main_thread=False):
             ret = {'status_code': -1, 'status_text': 'No response'}
         else:
             logging.info("Removed route %s->%s %s %s", name, face_id, ret['status_code'], ret['status_text'])
-        return redirect('routes', request, st_code=ret['status_code'], st_text=ret['status_text'])
+        return redirect('routing', request, st_code=ret['status_code'], st_text=ret['status_text'])
 
-    @routeTable.get('/routes', name='routes')
-    async def routes(request):
-        def decode_route_list(msg):
+    @routeTable.get('/routing', name='routing')
+    async def routing(request):
+        # Get list of faces to map FaceIds to FaceUris
+        try:
+            face_list = await server.get_face_list()
+        except (InterestCanceled, InterestTimeout, InterestNack, ValidationFailure, NetworkError):
+            logging.info("Face list retrieval failed")
+            raise web.HTTPFound('/')
+        face_map = {}
+        for face in face_list:
+            face_map[face['face_id']] = face['uri']
+
+        def decode_rib_list(msg):
             ret = []
             for item in msg:
                 name = Name.to_str(item['name'])
@@ -187,17 +191,38 @@ def app_main(main_thread=False):
                 ret.append((name, routes))
             return ret
 
+        def decode_fib_list(msg):
+            ret = []
+            for item in msg:
+                name = Name.to_str(item['name'])
+                nexthops = []
+                for nexthop in item['next_hop_records']:
+                    nexthops.append((face_map[nexthop['face_id']], nexthop['face_id'], nexthop['cost']))
+                ret.append((name, nexthops))
+            return ret
+
         name = "/localhost/nfd/rib/list"
         try:
             _, _, data = await server.app.express_interest(
                 name, lifetime=1000, can_be_prefix=True, must_be_fresh=True)
         except (InterestCanceled, InterestTimeout, InterestNack, ValidationFailure, NetworkError):
-            logging.info("No response: route-list")
+            logging.info("No response: rib-list")
             raise web.HTTPFound('/')
         msg = RibStatus.parse(data)
-        rib_list = decode_route_list(msg.asdict()['entries'])
-        return render_template('routes.html', request, refer_name='/routes',
-                               rib_list=rib_list, **request.query)
+        rib_list = decode_rib_list(msg.asdict()['entries'])
+
+        name = "/localhost/nfd/fib/list"
+        try:
+            _, _, data = await server.app.express_interest(
+                name, lifetime=1000, can_be_prefix=True, must_be_fresh=True)
+        except (InterestCanceled, InterestTimeout, InterestNack, ValidationFailure, NetworkError):
+            logging.info("No response: fib-list")
+            raise web.HTTPFound('/')
+        msg = FibStatus.parse(data)
+        fib_list = decode_fib_list(msg.asdict()['entries'])
+
+        return render_template('routing.html', request, refer_name='/routing',
+                               rib_list=rib_list, fib_list=fib_list, **request.query)
 
     @routeTable.get('/strategies', name='strategies')
     async def strategies(request):

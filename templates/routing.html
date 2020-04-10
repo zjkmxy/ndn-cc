@@ -4,9 +4,12 @@
   {{ super() }}
 {% endblock %}
 {% block bodyhead %}
-  <h1>Routes</h1>
+  <h1>Routing</h1>
 {% endblock %}
 {% block content %}
+
+  <h2>Routing Table (RIB)</h2>
+
   <table class="pure-table pure-table-bordered">
     <thead>
       <tr>
@@ -40,7 +43,7 @@
                   <td>{{ route['flags']|e }}</td>
                   <td>{{ route['exp_period']|e }}</td>
                   <td>
-                    <form action="/routes/remove" method="post">
+                    <form action="/routing/remove" method="post">
                       <input type="hidden" name="name" value={{ rib_entry[0] }}>
                       <input type="hidden" name="face_id" value={{ route["face_id"] }}>
                       <button type="submit">Remove</button>
@@ -55,7 +58,7 @@
       {% endfor %}
     </tbody>
   </table>
-  <form action="/routes/add" method="post">
+  <form action="/routing/add" method="post">
     <p>
       <label for="name">Prefix</label>
       <input type="text" name="name" id="name"/>
@@ -71,4 +74,41 @@
   {% if st_code %}
     <p>{{ st_code }} {{ st_text }}</p>
   {% endif %}
+
+  <h2>Forwarding Table (FIB)</h2>
+
+  <table class="pure-table pure-table-bordered">
+    <thead>
+      <tr>
+        <th>Prefix</th>
+        <th>Nexthops</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for fib_entry in fib_list %}
+      <tr>
+        <td>{{ fib_entry[0] }}</td>
+        <td>
+          <table class="pure-table pure-table-bordered">
+            <thead>
+              <tr>
+                <th>Face</th>
+                <th>Cost</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% set row_class = cycler('pure-table-odd', '') %}
+              {% for nexthop in fib_entry[1] %}
+                <tr class="{{ row_class.next() }}">
+                  <td>{{ nexthop[0] }} (Face ID: {{ nexthop[1] }})</td>
+                  <td>{{ nexthop[2] }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 {% endblock %}
