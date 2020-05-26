@@ -32,7 +32,7 @@ def app_main(main_thread=False):
 
     logging.basicConfig(format='[{asctime}]{levelname}:{message}',
                         datefmt='%Y-%m-%d %H:%M:%S',
-                        level=logging.DEBUG,
+                        level=logging.WARNING,
                         style='{')
 
     base_path = os.getcwd()
