@@ -2,6 +2,7 @@ import asyncio
 import urllib.request
 import socket
 import logging
+from aiohttp import web
 from datetime import datetime
 from Cryptodome.PublicKey import RSA, ECC
 from ndn.app import NDNApp
@@ -77,11 +78,17 @@ class Server:
                     name, must_be_fresh=init, can_be_prefix=init, lifetime=60000)
                 last_seq = Component.to_number(data_name[-1])
                 timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                dic = self.face_event_to_dict(content)
-                dic['seq'] = str(last_seq)
-                dic['time'] = timestamp
-                await self.emit('face event', dic)
-                self.event_list.append(dic)
+                if not content:
+                    print('ERROR: Face event is empty')
+                elif content[0] == 0x65:
+                    msg = parse_response(content)
+                    print('Query failed with response', msg['status_code'], msg['status_text'])
+                else:
+                    dic = self.face_event_to_dict(content)
+                    dic['seq'] = str(last_seq)
+                    dic['time'] = timestamp
+                    await self.emit('face event', dic)
+                    self.event_list.append(dic)
             except (InterestCanceled, NetworkError):
                 break
             except InterestTimeout:
