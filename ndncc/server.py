@@ -2,6 +2,7 @@ import asyncio
 import urllib.request
 import socket
 import logging
+from enum import Enum, Flag
 from aiohttp import web
 from datetime import datetime
 from Cryptodome.PublicKey import RSA, ECC
@@ -34,6 +35,11 @@ class Server:
         for k, v in dic.items():
             if isinstance(v, bytes):
                 dic[k] = v.decode()
+            elif isinstance(v, Enum):
+                dic[k] = v.name
+            elif isinstance(v, Flag):
+                s = str(v)
+                dic[k] = s.split('.')[1]
         return dic
 
     async def run(self):
@@ -105,45 +111,15 @@ class Server:
     def face_event_to_dict(msg):
         ret = {}
         event = FaceEventNotification.parse(msg)
-        if event.event.face_event_kind == 1:
-            ret['face_event_kind'] = "CREATED"
-        elif event.event.face_event_kind == 2:
-            ret['face_event_kind'] = "DESTROYED"
-        elif event.event.face_event_kind == 3:
-            ret['face_event_kind'] = "UP"
-        elif event.event.face_event_kind == 4:
-            ret['face_event_kind'] = "DOWN"
-        else:
-            ret['face_event_kind'] = "unknown"
 
+        ret['face_event_kind'] = event.event.face_event_kind.name
         ret['face_id'] = str(event.event.face_id)
-        ret['local_uri'] = bytes(event.event.local_uri).decode("utf-8")
-        ret['remote_uri'] = bytes(event.event.uri).decode("utf-8")
-
-        if event.event.face_scope == 1:
-            ret['face_scope'] = "local"
-        else:
-            ret['face_scope'] = "non-local"
-
-        if event.event.face_persistency == 0:
-            ret['face_persistency'] = "persistent"
-        elif event.event.face_persistency == 1:
-            ret['face_persistency'] = "on-demand"
-        elif event.event.face_persistency == 2:
-            ret['face_persistency'] = "permanent"
-        else:
-            ret['face_persistency'] = "unknown"
-
-        if event.event.link_type == 0:
-            ret['link_type'] = "point-to-point"
-        elif event.event.link_type == 1:
-            ret['link_type'] = "multi-access"
-        elif event.event.link_type == 2:
-            ret['link_type'] = "ad-hoc"
-        else:
-            ret['link_type'] = "unknown"
-
-        ret['flags'] = str(event.event.flags)
+        ret['local_uri'] = event.event.local_uri
+        ret['remote_uri'] = event.event.uri
+        ret['face_scope'] = event.event.face_scope.name
+        ret['face_persistency'] = event.event.face_persistency.name
+        ret['link_type'] = event.event.link_type.name
+        ret['flags'] = str(event.event.flags)[10:]  # Remove 'FaceFlags.'
         return ret
 
     async def issue_command_interest(self, cmd):
@@ -260,7 +236,7 @@ class Server:
     async def query_face_id(self, uri):
         query_filter = FaceQueryFilter()
         query_filter.face_query_filter = FaceQueryFilterValue()
-        query_filter.face_query_filter.uri = uri.encode('utf-8')
+        query_filter.face_query_filter.uri = uri
         query_filter_msg = query_filter.encode()
         name = Name.from_str("/localhost/nfd/faces/query") + [Component.from_bytes(query_filter_msg)]
         try:
@@ -283,7 +259,7 @@ class Server:
         uri = socket.gethostbyname(uri)
         uri = "udp4://" + uri + ":6363"
 
-        cmd = make_command('faces', 'create', uri=uri.encode())
+        cmd = make_command('faces', 'create', uri=uri)
         ret = await self.issue_command_interest(cmd)
         if not isinstance(ret, dict):
             return False, "Create face failed"

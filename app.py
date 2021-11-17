@@ -2,6 +2,7 @@ import asyncio
 import time
 import os
 import logging
+from enum import Enum, Flag
 from typing import Dict
 from datetime import datetime
 from aiohttp import web
@@ -19,6 +20,11 @@ def decode_dict(msg) -> Dict[str, str]:
     for k, v in ret.items():
         if is_binary_str(v):
             ret[k] = bytes(v).decode()
+        elif isinstance(v, Enum):
+            ret[k] = v.name
+        elif isinstance(v, Flag):
+            s = str(v)
+            ret[k] = s.split('.')[1]
         else:
             ret[k] = str(v)
     return ret
