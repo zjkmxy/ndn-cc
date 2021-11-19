@@ -57,3 +57,20 @@ function do_menu_search() {
         buttons[i].hidden = item[0].childNodes[0].textContent.toUpperCase().indexOf(filter) <= -1;
     }
 }
+
+function do_face_search() {
+    let input_edit = document.getElementById("face_search");
+    let filter = input_edit.value.toUpperCase();
+    let face_table = document.getElementById("div_face_list");
+    let faces = face_table.getElementsByTagName("tr");
+
+    for (let i = 0; i < faces.length; i++) {
+        let columns = faces[i].getElementsByTagName("td");
+        let face_id = columns[0].childNodes[0].textContent.trim().toUpperCase()
+        let uri = columns[1].childNodes[0].textContent.trim().toUpperCase()
+        let local_uri = columns[2].childNodes[0].textContent.trim().toUpperCase()
+        faces[i].hidden = (face_id.indexOf(filter) <= -1 &&
+            uri.indexOf(filter) <= -1 &&
+            local_uri.indexOf(filter) <= -1);
+    }
+}

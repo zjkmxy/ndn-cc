@@ -134,8 +134,18 @@ def app_main(main_thread=False):
         face_list = [server.decode_to_str(fs.asdict()) for fs in msg.face_status]
         fields = list(face_list[0].keys())
         fields_collapse = [field for field in set(fields) - {'face_id', 'uri'}]
-        return render_template('faces.html', request, refer_name='/faces', face_list=face_list,
-                               fields_collapse=fields_collapse, **request.query)
+        if 'face_id' in request.query:
+            face_data = None
+            for f in face_list:
+                if str(f['face_id']) == request.query['face_id']:
+                    face_data = f
+                    break
+            return render_template('faces.html', request, refer_name='/faces', face_list=face_list,
+                                   fields_collapse=fields_collapse, face_data=face_data,
+                                   **request.query)
+        else:
+            return render_template('faces.html', request, refer_name='/faces', face_list=face_list,
+                                   fields_collapse=fields_collapse, **request.query)
 
     @routeTable.get('/face-events')
     async def face_events(request):
