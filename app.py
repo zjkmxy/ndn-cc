@@ -123,29 +123,26 @@ def app_main(main_thread=False):
 
     @routeTable.get('/faces', name='faces')
     async def faces(request):
-        name = "/localhost/nfd/faces/list"
-        try:
-            _, _, data = await server.app.express_interest(
-                name, lifetime=1000, can_be_prefix=True, must_be_fresh=True)
-        except (InterestCanceled, InterestTimeout, InterestNack, ValidationFailure, NetworkError):
-            logging.info("No response: face-list")
-            raise web.HTTPFound('/')
-        msg = FaceStatusMsg.parse(data)
-        face_list = [server.decode_to_str(fs.asdict()) for fs in msg.face_status]
+        face_list = await server.get_face_list()
         fields = list(face_list[0].keys())
         fields_collapse = [field for field in set(fields) - {'face_id', 'uri'}]
+        face_data = None
         if 'face_id' in request.query:
-            face_data = None
             for f in face_list:
                 if str(f['face_id']) == request.query['face_id']:
                     face_data = f
                     break
-            return render_template('faces.html', request, refer_name='/faces', face_list=face_list,
-                                   fields_collapse=fields_collapse, face_data=face_data,
-                                   **request.query)
-        else:
-            return render_template('faces.html', request, refer_name='/faces', face_list=face_list,
-                                   fields_collapse=fields_collapse, **request.query)
+        route_data = []
+        if face_data is not None:
+            fib = await server.get_fib_list()
+            for fe in fib:
+                for nh in fe['next_hop_records']:
+                    if str(nh['face_id']) == request.query['face_id']:
+                        route_data.append({'route': fe['name'], 'cost': nh['cost']})
+        return render_template('faces.html', request, refer_name='/faces', face_list=face_list,
+                               fields_collapse=fields_collapse, face_data=face_data,
+                               route_data=route_data,
+                               **request.query)
 
     @routeTable.get('/face-events')
     async def face_events(request):
@@ -190,55 +187,31 @@ def app_main(main_thread=False):
     @routeTable.get('/routing', name='routing')
     async def routing(request):
         # Get list of faces to map FaceIds to FaceUris
-        try:
-            face_list = await server.get_face_list()
-        except (InterestCanceled, InterestTimeout, InterestNack, ValidationFailure, NetworkError):
-            logging.info("Face list retrieval failed")
-            raise web.HTTPFound('/')
+        face_list = await server.get_face_list()
         face_map = {}
         for face in face_list:
             face_map[face['face_id']] = face['uri']
+        fib_list = await server.get_fib_list()
+        rib_list = await server.get_rib_list()
 
-        def decode_rib_list(msg):
-            ret = []
-            for item in msg:
-                name = Name.to_str(item['name'])
-                routes = item['routes']
-                ret.append((name, routes))
-            return ret
-
-        def decode_fib_list(msg):
-            ret = []
-            for item in msg:
-                name = Name.to_str(item['name'])
-                nexthops = []
-                for nexthop in item['next_hop_records']:
-                    nexthops.append((face_map[nexthop['face_id']], nexthop['face_id'], nexthop['cost']))
-                ret.append((name, nexthops))
-            return ret
-
-        name = "/localhost/nfd/rib/list"
-        try:
-            _, _, data = await server.app.express_interest(
-                name, lifetime=1000, can_be_prefix=True, must_be_fresh=True)
-        except (InterestCanceled, InterestTimeout, InterestNack, ValidationFailure, NetworkError):
-            logging.info("No response: rib-list")
-            raise web.HTTPFound('/')
-        msg = RibStatus.parse(data)
-        rib_list = decode_rib_list(msg.asdict()['entries'])
-
-        name = "/localhost/nfd/fib/list"
-        try:
-            _, _, data = await server.app.express_interest(
-                name, lifetime=1000, can_be_prefix=True, must_be_fresh=True)
-        except (InterestCanceled, InterestTimeout, InterestNack, ValidationFailure, NetworkError):
-            logging.info("No response: fib-list")
-            raise web.HTTPFound('/')
-        msg = FibStatus.parse(data)
-        fib_list = decode_fib_list(msg.asdict()['entries'])
+        fib_routes = []
+        rib_routes = []
+        request_name = None
+        if 'name' in request.query:
+            request_name = request.query['name']
+            for ent in fib_list:
+                if ent['name'] == request_name:
+                    fib_routes = ent['next_hop_records']
+                    break
+            for ent in rib_list:
+                if ent['name'] == request_name:
+                    rib_routes = ent['routes']
+                    break
 
         return render_template('routing.html', request, refer_name='/routing',
-                               rib_list=rib_list, fib_list=fib_list, **request.query)
+                               rib_list=rib_list, fib_list=fib_list, face_map=face_map,
+                               fib_routes=fib_routes, rib_routes=rib_routes, request_name=request_name,
+                               **request.query)
 
     @routeTable.get('/strategies', name='strategies')
     async def strategies(request):

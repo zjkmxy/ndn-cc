@@ -7,28 +7,28 @@
   <table class="pure-table">
     <caption>Known Certificate Servers</caption>
     <thead>
-      <tr>
-        <th>CA Name</th>
-        <th>CA Info</th>
-        <th>Actions</th>
-      </tr>
+    <tr>
+      <th>CA Name</th>
+      <th>CA Info</th>
+      <th>Actions</th>
+    </tr>
     </thead>
     {% set row_class = cycler('pure-table-odd', '') %}
     {% for ca_entry in ca_list %}
       <tr class="{{ row_class.next() }}">
         <td>{{ ca_entry[0] }}</td>
         <td>
-            {{ ca_entry[1] }}
+          {{ ca_entry[1] }}
         </td>
         <td>
-            <form action="/exec/ndncert-request" method="post">
-              <input type="hidden" name="name" value={{ ca_entry[0] }}>
-              <button type="submit">Request a cert</button>
-            </form>
-            <form action="/exec/remove-route" method="post">
-              <input type="hidden" name="name" value={{ ca_entry[0] }}>
-              <button type="submit">Remove</button>
-            </form>
+          <form action="/exec/ndncert-request" method="post">
+            <input type="hidden" name="name" value={{ ca_entry[0] }}>
+            <button type="submit">Request a cert</button>
+          </form>
+          <form action="/exec/remove-route" method="post">
+            <input type="hidden" name="name" value={{ ca_entry[0] }}>
+            <button type="submit">Remove</button>
+          </form>
         </td>
       </tr>
     {% endfor %}
@@ -45,33 +45,33 @@
   <link rel="stylesheet" href="/static/css/route-list.css">
 </head>
 <body>
-  <h1>{{ name|e|e }}</h1>
-  <table>
-    <caption>Known Certificate Servers</caption>
-    <tr>
-      <th>CA Name</th>
-      <th>CA Info</th>
-      <th>Actions</th>
-    </tr>
-    {% for ca_entry in ca_list %}
+<h1>{{ name|e|e }}</h1>
+<table>
+  <caption>Known Certificate Servers</caption>
+  <tr>
+    <th>CA Name</th>
+    <th>CA Info</th>
+    <th>Actions</th>
+  </tr>
+  {% for ca_entry in ca_list %}
     <tr>
       <td>{{ ca_entry[0] }}</td>
       <td>
-          {{ ca_entry[1] }}
+        {{ ca_entry[1] }}
       </td>
       <td>
-          <form action="/exec/ndncert-request" method="post">
-            <input type="hidden" name="name" value={{ ca_entry[0] }}>
-            <button type="submit">Request a cert</button>
-          </form>
-          <form action="/exec/remove-route" method="post">
-            <input type="hidden" name="name" value={{ ca_entry[0] }}>
-            <button type="submit">Remove</button>
-          </form>
+        <form action="/exec/ndncert-request" method="post">
+          <input type="hidden" name="name" value={{ ca_entry[0] }}>
+          <button type="submit">Request a cert</button>
+        </form>
+        <form action="/exec/remove-route" method="post">
+          <input type="hidden" name="name" value={{ ca_entry[0] }}>
+          <button type="submit">Remove</button>
+        </form>
       </td>
     </tr>
-    {% endfor %}
-  </table>
+  {% endfor %}
+</table>
 
 </body>
 </html>

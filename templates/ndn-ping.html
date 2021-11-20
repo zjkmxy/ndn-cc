@@ -3,9 +3,9 @@
 {% block head %}
   {{ super() }}
   <style type="text/css">
-    .pure-form-message-inline {
-      font-size: 1.2em;
-    }
+      .pure-form-message-inline {
+          font-size: 1.2em;
+      }
   </style>
 {% endblock %}
 {% block bodyhead %}
@@ -30,7 +30,8 @@
       </div>
       <div class="pure-control-group">
         <label for="interest_lifetime">InterestLifetime (sec)</label>
-        <input type="number" name="interest_lifetime" id="interest_lifetime" min="0" max="120" step="1" value="4" required/>
+        <input type="number" name="interest_lifetime" id="interest_lifetime" min="0" max="120" step="1" value="4"
+               required/>
       </div>
       <div class="pure-controls">
         <button type="submit" class="pure-button pure-button-primary">Express Interest</button>
@@ -69,7 +70,8 @@
         {% if final_block_id %}
           <div class="pure-control-group">
             <label for="res_finalblockid">FinalBlockId</label>
-            <input type="text" class="pure-u-2-3" name="res_finalblockid" id="res_finalblockid" value="{{ final_block_id|urlencode }}" readonly/>
+            <input type="text" class="pure-u-2-3" name="res_finalblockid" id="res_finalblockid"
+                   value="{{ final_block_id|urlencode }}" readonly/>
           </div>
         {% endif %}
         {% if signature_type %}

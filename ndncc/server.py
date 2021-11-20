@@ -10,7 +10,7 @@ from ndn.app import NDNApp
 from ndn.encoding import Name, Component, SignatureType
 from ndn.types import InterestCanceled, InterestTimeout, InterestNack, ValidationFailure, NetworkError
 from ndn.app_support.nfd_mgmt import FaceEventNotification, parse_response, make_command,\
-    FaceQueryFilter, FaceQueryFilterValue, FaceStatusMsg
+    FaceQueryFilter, FaceQueryFilterValue, FaceStatusMsg, FibStatus, RibStatus
 from ndn.app_support.security_v2 import parse_certificate
 
 
@@ -31,7 +31,8 @@ class Server:
     def connection_test(self):
         return self.app.face.running
 
-    def decode_to_str(self, dic):
+    @staticmethod
+    def decode_to_str(dic):
         for k, v in dic.items():
             if isinstance(v, bytes):
                 dic[k] = v.decode()
@@ -40,6 +41,10 @@ class Server:
             elif isinstance(v, Flag):
                 s = str(v)
                 dic[k] = s.split('.')[1]
+            elif k == 'name':
+                dic[k] = Name.to_str(v)
+            elif k == 'routes':
+                dic[k] = [Server.decode_to_str(r) for r in v]
         return dic
 
     async def run(self):
@@ -56,17 +61,30 @@ class Server:
                 self.app.shutdown()
             await asyncio.sleep(3.0)
 
-    async def get_face_list(self):
-        name = "/localhost/nfd/faces/list"
+    async def fetch_list(self, module_name: str):
+        name = "/localhost/nfd/" + module_name
         try:
             _, _, data = await self.app.express_interest(
                 name, lifetime=1000, can_be_prefix=True, must_be_fresh=True)
         except (InterestCanceled, InterestTimeout, InterestNack, ValidationFailure, NetworkError):
-            logging.info("No response: face-list")
+            logging.info("No response: " + module_name)
             raise web.HTTPFound('/')
-        msg = FaceStatusMsg.parse(data)
+        return data
+
+    async def get_face_list(self):
+        msg = FaceStatusMsg.parse(await self.fetch_list('faces/list'))
         face_list = [self.decode_to_str(fs.asdict()) for fs in msg.face_status]
         return face_list
+
+    async def get_fib_list(self):
+        msg = FibStatus.parse(await self.fetch_list('fib/list'))
+        fib_list = [self.decode_to_str(ent.asdict()) for ent in msg.entries]
+        return fib_list
+
+    async def get_rib_list(self):
+        msg = RibStatus.parse(await self.fetch_list('rib/list'))
+        rib_list = [self.decode_to_str(ent.asdict()) for ent in msg.entries]
+        return rib_list
 
     async def face_event(self):
         last_seq = -1

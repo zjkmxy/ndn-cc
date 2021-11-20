@@ -9,19 +9,19 @@
 {% block content %}
   <table class="pure-table">
     <thead>
-      <tr>
-        <th>Item</th>
-        <th>Value</th>
-      </tr>
+    <tr>
+      <th>Item</th>
+      <th>Value</th>
+    </tr>
     </thead>
     <tbody>
-      {% set row_class = cycler('pure-table-odd', '') %}
-      {% for key, value in status.items() %}
+    {% set row_class = cycler('pure-table-odd', '') %}
+    {% for key, value in status.items() %}
       <tr class="{{ row_class.next() }}">
         <td>{{ key|e }}</td>
         <td>{{ value|e }}</td>
       </tr>
-      {% endfor %}
+    {% endfor %}
     </tbody>
   </table>
 {% endblock %}

@@ -12,7 +12,7 @@
       <br/>
       <form class="pure-form">
         <input type="text" id="face_search" class="pure-input-3-4" onkeyup="do_face_search()"
-               onkeydown="return event.key != 'Enter';" placeholder="Search Faces..." title="Type in a keyword">
+               onkeydown="return event.key !== 'Enter';" placeholder="Search Faces..." title="Type in a keyword">
       </form>
       <br/>
       <table class="pure-table">
@@ -28,16 +28,8 @@
         {% set row_class = cycler('pure-table-odd', '') %}
         {% for item in face_list %}
           <tr class="{{ row_class.next() }}">
-            <td><a href="/faces?face_id={{ item['face_id']|e }}">{{ item['face_id']|e }}</a></td>
-            <td>
-              {{ item['uri']|e }}
-              <!--<details>
-              <summary>{{ item['uri']|e }}</summary>
-              {% for field in fields_collapse %}
-                {{ field + ": " + item[field]|e }}<br>
-              {% endfor %}
-            </details>-->
-            </td>
+            <td><a href="/faces?face_id={{ item['face_id']|urlencode }}">{{ item['face_id']|e }}</a></td>
+            <td>{{ item['uri']|e }}</td>
             <td hidden>{{ item['local_uri']|e }}</td>
             <td>
               <form class="pure-form" action="/faces/remove" method="post">
@@ -64,19 +56,69 @@
     </div>
     <div id="right-side" class="pure-u-1-2">
       {% if face_data %}
-      <h1>Face {{ face_data['face_id'] }}</h1>
-      <table class="pure-table">
-        <tr class="pure-table-odd"><td><b>Local</b></td><td>{{ face_data['face_id'] }}</td></tr>
-        <tr><td><b>Remote</b></td><td>{{ face_data['uri'] }}</td></tr>
-        <tr class="pure-table-odd"><td><b>MTU</b></td><td>{{ face_data['local_uri'] }}</td></tr>
-        <tr><td><b>Flags</b></td><td>{{ face_data['flags'] }}</td></tr>
-        <tr class="pure-table-odd"><td><b>RX Interest</b></td><td>{{ face_data['n_in_interests'] }}</td></tr>
-        <tr><td><b>RX Data</b></td><td>{{ face_data['n_in_data'] }}</td></tr>
-        <tr class="pure-table-odd"><td><b>RX Nack</b></td><td>{{ face_data['n_in_nacks'] }}</td></tr>
-        <tr><td><b>TX Interest</b></td><td>{{ face_data['n_out_interests'] }}</td></tr>
-        <tr class="pure-table-odd"><td><b>TX Data</b></td><td>{{ face_data['n_out_data'] }}</td></tr>
-        <tr><td><b>TX Nack</b></td><td>{{ face_data['n_out_nacks'] }}</td></tr>
-      </table>
+        <h2>Face {{ face_data['face_id'] }}</h2>
+        <table class="pure-table">
+          <tr class="pure-table-odd">
+            <td><b>Local</b></td>
+            <td>{{ face_data['face_id'] }}</td>
+          </tr>
+          <tr>
+            <td><b>Remote</b></td>
+            <td>{{ face_data['uri'] }}</td>
+          </tr>
+          <tr class="pure-table-odd">
+            <td><b>MTU</b></td>
+            <td>{{ face_data['local_uri'] }}</td>
+          </tr>
+          <tr>
+            <td><b>Flags</b></td>
+            <td>{{ face_data['flags'] }}</td>
+          </tr>
+          <tr class="pure-table-odd">
+            <td><b>RX Interest</b></td>
+            <td>{{ face_data['n_in_interests'] }}</td>
+          </tr>
+          <tr>
+            <td><b>RX Data</b></td>
+            <td>{{ face_data['n_in_data'] }}</td>
+          </tr>
+          <tr class="pure-table-odd">
+            <td><b>RX Nack</b></td>
+            <td>{{ face_data['n_in_nacks'] }}</td>
+          </tr>
+          <tr>
+            <td><b>TX Interest</b></td>
+            <td>{{ face_data['n_out_interests'] }}</td>
+          </tr>
+          <tr class="pure-table-odd">
+            <td><b>TX Data</b></td>
+            <td>{{ face_data['n_out_data'] }}</td>
+          </tr>
+          <tr>
+            <td><b>TX Nack</b></td>
+            <td>{{ face_data['n_out_nacks'] }}</td>
+          </tr>
+        </table>
+      {% endif %}
+      {% if route_data|length > 0 %}
+        <h2>FIB Entries</h2>
+        <table class="pure-table">
+          <thead>
+          <tr>
+            <th>Route</th>
+            <th>Cost</th>
+          </tr>
+          </thead>
+          <tbody>
+          {% set row_class2 = cycler('pure-table-odd', '') %}
+          {% for route in route_data %}
+            <tr class="{{ row_class2.next() }}">
+              <td><a href="/routing?name={{ route['route']|urlencode }}">{{ route['route']|e }}</a></td>
+              <td>{{ route['cost']|e }}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
       {% endif %}
     </div>
   </div>

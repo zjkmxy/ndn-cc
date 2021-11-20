@@ -3,17 +3,19 @@
 {% block head %}
   {{ super() }}
   <style type="text/css">
-    table.pure-table {
-      margin-left: -130px;
-      font-size: 16px;
-      white-space: nowrap;
-    }
-    .pure-table thead {
-      text-align: center;
-    }
-    .pure-table td, .pure-table th {
-      padding: 2px 2px;
-    }
+      table.pure-table {
+          margin-left: -130px;
+          font-size: 16px;
+          white-space: nowrap;
+      }
+
+      .pure-table thead {
+          text-align: center;
+      }
+
+      .pure-table td, .pure-table th {
+          padding: 2px 2px;
+      }
   </style>
 {% endblock %}
 {% block bodyhead %}
@@ -22,56 +24,57 @@
 {% block content %}
   <table class="pure-table pure-table-bordered" id="chat-log">
     <thead>
-      <tr>
-        <th>Seq ID</th>
-        <th>Timestamp</th>
-        <th>Face ID</th>
-        <th>Local URI</th>
-        <th>Event Kind</th>
-        <th>Remote URI</th>
-        <th>Face Scope</th>
-        <th>Face Persistency</th>
-        <th>Link Type</th>
-        <th>Flags</th>
-      </tr>
+    <tr>
+      <th>Seq ID</th>
+      <th>Timestamp</th>
+      <th>Face ID</th>
+      <th>Local URI</th>
+      <th>Event Kind</th>
+      <th>Remote URI</th>
+      <th>Face Scope</th>
+      <th>Face Persistency</th>
+      <th>Link Type</th>
+      <th>Flags</th>
+    </tr>
     </thead>
     <tbody>
-      {% if event_list %}
-        {% for event in event_list %}
-          <tr>
-            <td>{{ event['seq'] }}</td>
-            <td>{{ event['time'] }}</td>
-            <td>{{ event['face_id'] }}</td>
-            <td>{{ event['local_uri'] }}</td>
-            <td>{{ event['face_event_kind'] }}</td>
-            <td>{{ event['remote_uri'] }}</td>
-            <td>{{ event['face_scope'] }}</td>
-            <td>{{ event['face_persistency'] }}</td>
-            <td>{{ event['link_type'] }}</td>
-            <td>{{ event['flags'] }}</td>
-          </tr>
-        {% endfor %}
-      {% endif %}
+    {% if event_list %}
+      {% for event in event_list %}
+        <tr>
+          <td>{{ event['seq'] }}</td>
+          <td>{{ event['time'] }}</td>
+          <td>{{ event['face_id'] }}</td>
+          <td>{{ event['local_uri'] }}</td>
+          <td>{{ event['face_event_kind'] }}</td>
+          <td>{{ event['remote_uri'] }}</td>
+          <td>{{ event['face_scope'] }}</td>
+          <td>{{ event['face_persistency'] }}</td>
+          <td>{{ event['link_type'] }}</td>
+          <td>{{ event['flags'] }}</td>
+        </tr>
+      {% endfor %}
+    {% endif %}
     </tbody>
   </table>
 {% endblock %}
 {% block body %}
   {{ super() }}
-  <script src="/static/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
+  <script src="/static/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I="
+          crossorigin="anonymous"></script>
   <script>
-    var socket = io();
-    socket.on('face event', function(data){
-      let row = document.querySelector('#chat-log').insertRow(-1);
-      row.insertCell(-1).appendChild(document.createTextNode(data['seq']));
-      row.insertCell(-1).appendChild(document.createTextNode(data['time']));
-      row.insertCell(-1).appendChild(document.createTextNode(data['face_id']));
-      row.insertCell(-1).appendChild(document.createTextNode(data['local_uri']));
-      row.insertCell(-1).appendChild(document.createTextNode(data['face_event_kind']));
-      row.insertCell(-1).appendChild(document.createTextNode(data['remote_uri']));
-      row.insertCell(-1).appendChild(document.createTextNode(data['face_scope']));
-      row.insertCell(-1).appendChild(document.createTextNode(data['face_persistency']));
-      row.insertCell(-1).appendChild(document.createTextNode(data['link_type']));
-      row.insertCell(-1).appendChild(document.createTextNode(data['flags']));
-    });
+      var socket = io();
+      socket.on('face event', function (data) {
+          let row = document.querySelector('#chat-log').insertRow(-1);
+          row.insertCell(-1).appendChild(document.createTextNode(data['seq']));
+          row.insertCell(-1).appendChild(document.createTextNode(data['time']));
+          row.insertCell(-1).appendChild(document.createTextNode(data['face_id']));
+          row.insertCell(-1).appendChild(document.createTextNode(data['local_uri']));
+          row.insertCell(-1).appendChild(document.createTextNode(data['face_event_kind']));
+          row.insertCell(-1).appendChild(document.createTextNode(data['remote_uri']));
+          row.insertCell(-1).appendChild(document.createTextNode(data['face_scope']));
+          row.insertCell(-1).appendChild(document.createTextNode(data['face_persistency']));
+          row.insertCell(-1).appendChild(document.createTextNode(data['link_type']));
+          row.insertCell(-1).appendChild(document.createTextNode(data['flags']));
+      });
   </script>
 {% endblock %}

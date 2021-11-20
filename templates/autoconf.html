@@ -3,9 +3,9 @@
 {% block head %}
   {{ super() }}
   <style type="text/css">
-    .center {
-      text-align: center;
-    }
+      .center {
+          text-align: center;
+      }
   </style>
 {% endblock %}
 {% block bodyhead %}
@@ -13,7 +13,8 @@
 {% endblock %}
 {% block content %}
   <div class="center">
-    <a href="/autoconf/perform" class="pure-button pure-button-primary">Connect to NDN Testbed through the closest NDN router.</a>
+    <a href="/autoconf/perform" class="pure-button pure-button-primary">Connect to NDN Testbed through the closest NDN
+      router.</a>
   </div>
   {% if msg %}
     <p class="center">{{ msg }}</p>

@@ -9,15 +9,15 @@
 {% block content %}
   <table class="pure-table">
     <thead>
-      <tr>
-        <th>Name</th>
-        <th>Strategy</th>
-        <th>Delete</th>
-      </tr>
+    <tr>
+      <th>Name</th>
+      <th>Strategy</th>
+      <th>Delete</th>
+    </tr>
     </thead>
     <tbody>
-      {% set row_class = cycler('pure-table-odd', '') %}
-      {% for item in strategy_list %}
+    {% set row_class = cycler('pure-table-odd', '') %}
+    {% for item in strategy_list %}
       <tr class="{{ row_class.next() }}">
         <td>{{ item['name']|e }}</td>
         <td>{{ item['strategy']|e }}</td>
@@ -28,7 +28,7 @@
           </form>
         </td>
       </tr>
-      {% endfor %}
+    {% endfor %}
     </tbody>
   </table>
   <form class="pure-form" action="/strategies/set" method="post">
