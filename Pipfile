@@ -6,18 +6,17 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-python-socketio = ">=4.3.1"
-pystray = ">=0.14.4"
-aiohttp = ">=3.6.2"
-aiohttp-jinja2 = ">=1.2.0"
-python-ndn = "==0.3a1.post4"
-Jinja2 = ">=2.10.3"
-Pillow = ">=6.1.0"
+python-socketio = ">=5.5.0"
+pystray = ">=0.18.0"
+aiohttp = ">=3.8.1"
+aiohttp-jinja2 = ">=1.5"
+Jinja2 = ">=3.0.3"
+Pillow = ">=8.4.0"
+python-ndn = {git = "https://github.com/named-data/python-ndn"}
 
 [requires]
-python_version = "3.8"
+python_version = "3.10"
 
 [scripts]
 app = "python app.py"
 main = "python main.py"
-
