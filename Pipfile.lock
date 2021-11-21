@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "b088eb1bf37ddd92952995e75c016fc2f8ec6b86768cf75744478d2e550654ce"
+            "sha256": "034bc51a9d5c3111ed0ca6122ef55916c3f0509f24064e7ae8bf43deffa98cc1"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -147,7 +147,7 @@
                 "sha256:e019de665e2bcf9c2b64e2e5aa025fa991da8720daa3c1138cadd2fd1856aed0",
                 "sha256:f7af805c321bfa1ce6714c51f254e0d5bb5e5834039bc17db7ebe3a4cec9492b"
             ],
-            "markers": "python_full_version >= '3.5.0'",
+            "markers": "python_version >= '3.5'",
             "version": "==2.0.7"
         },
         "frozenlist": {
@@ -233,7 +233,7 @@
                 "sha256:84d9dd047ffa80596e0f246e2eab0b391788b0503584e8945f2368256d2735ff",
                 "sha256:9d643ff0a55b762d5cdb124b8eaa99c66322e2157b69160bc32796e824360e6d"
             ],
-            "markers": "python_full_version >= '3.5.0'",
+            "markers": "python_version >= '3.5'",
             "version": "==3.3"
         },
         "jinja2": {
@@ -540,8 +540,12 @@
             "version": "==4.3.0"
         },
         "python-ndn": {
-            "git": "https://github.com/named-data/python-ndn",
-            "ref": "511eefc87b3265d0f32a76146659fa1cbd8bbf2a"
+            "hashes": [
+                "sha256:194bcb9de98c16f8c8bd0e6fa5001f3830dbc7d88f5d821b771653cec12aa13b",
+                "sha256:8277aa4ff4bed11abfc1e648ea3f82035dfe6ff70171cfe85cacbbc3ffc36e4c"
+            ],
+            "index": "pypi",
+            "version": "==0.3"
         },
         "python-socketio": {
             "hashes": [

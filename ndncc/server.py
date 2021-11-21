@@ -148,9 +148,7 @@ class Server:
         except (InterestCanceled, InterestTimeout, InterestNack, ValidationFailure, NetworkError):
             logging.error(f'Command failed')
             return None
-        ret = parse_response(data)
-        ret['status_text'] = ret['status_text'].decode()
-        return ret
+        return parse_response(data)
 
     async def add_face(self, uri):
         # It's not easy to distinguish udp4://127.0.0.1 and udp4://spurs.cs.ucla.edu
