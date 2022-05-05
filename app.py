@@ -31,10 +31,13 @@ def decode_dict(msg) -> Dict[str, str]:
 
 
 def app_main(main_thread=False):
-    try:
-        asyncio.get_event_loop()
-    except RuntimeError:
-        asyncio.set_event_loop(asyncio.new_event_loop())
+    # try:
+    #     asyncio.get_event_loop()
+    # except RuntimeError:
+    #     asyncio.set_event_loop(asyncio.new_event_loop())
+    # Remark: behavior changes after 3.10
+    # This code only works for main_thread + asyncio.ensure_future(server.run())
+    # Not setting event_loop OR using create_task will fail for no running event loop
 
     logging.basicConfig(format='[{asctime}]{levelname}:{message}',
                         datefmt='%Y-%m-%d %H:%M:%S',
@@ -432,19 +435,23 @@ def app_main(main_thread=False):
             headers={'Content-Disposition': 'attachment; filename="{ping.data}"'})
 
     app.add_routes(routeTable)
-    asyncio.ensure_future(server.run())
+    # asyncio.ensure_future(server.run())
 
     async def run_app():
         runner = web.AppRunner(app)
         await runner.setup()
         site = web.TCPSite(runner, "localhost", 5000)
         await site.start()
+        # WebServer will be closed if this function returns
+        if main_thread:
+            print('======== Running on http://localhost:5000 ========')
+            print('(Press CTRL+C twice to quit)')
+        await server.run()  # Blocks here
 
-    if main_thread:
-        web.run_app(app, port=5000)
-    else:
-        asyncio.get_event_loop().run_until_complete(run_app())
-        asyncio.get_event_loop().run_forever()
+    try:
+        asyncio.run(run_app())
+    except KeyboardInterrupt:
+        return
 
 
 if __name__ == '__main__':
